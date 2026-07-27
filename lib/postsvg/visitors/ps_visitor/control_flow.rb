@@ -39,7 +39,7 @@ module Postsvg
           body = @stack.pop
           LOOP_LIMIT.times do
             descend_into_procedure(body)
-          rescue Postsvg::ExitSignal
+          rescue Postscript::ExitSignal
             break
           end
         end
@@ -74,11 +74,11 @@ module Postsvg
         end
 
         def visit_exit(_op, _ctx)
-          raise Postsvg::ExitSignal
+          raise Postscript::ExitSignal
         end
 
         def visit_quit(_op, _ctx)
-          raise Postsvg::QuitSignal
+          raise Postscript::QuitSignal
         end
 
         def visit_exec(_op, _ctx)

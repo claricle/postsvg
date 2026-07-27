@@ -3,7 +3,7 @@
 module Postsvg
   module Svg
     # Parsed SVG transform attribute. Produces a list of
-    # Postsvg::Matrix instances that, multiplied in order, give the
+    # Postscript::Matrix instances that, multiplied in order, give the
     # composite CTM for the element.
     class TransformList
       attr_reader :matrices

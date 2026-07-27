@@ -67,7 +67,7 @@ module Postsvg
             y: -screen_pos[:y],
             font_family: @graphics.current.font_name,
             font_size: @graphics.current.font_size,
-            color: color || Postsvg::Color::BLACK,
+            color: color || Postscript::Color::BLACK,
             transform: "scale(1 -1)",
           )
           @path.reset

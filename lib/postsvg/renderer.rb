@@ -25,7 +25,7 @@ module Postsvg
       open_svg
       wrap_y_flip do
         visitor.visit_program(program)
-      rescue Postsvg::QuitSignal
+      rescue Postscript::QuitSignal
         # PS +quit+ ends program execution; suppress and finalize SVG.
       end
       builder.close_svg
