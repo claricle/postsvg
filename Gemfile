@@ -2,11 +2,10 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in xml-c14n.gemspec
 gemspec
 
-gem "canon", github: "lutaml/canon",
-             branch: "rt-update-behavior-prevent-data-loss"
+gem "canon", github: "lutaml/canon", branch: "main"
+gem "nokogiri"
 gem "rake"
 gem "rspec"
 gem "rubocop"
