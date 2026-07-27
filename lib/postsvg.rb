@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "postscript"
 require "parslet"
 require "thor"
 require "nokogiri"
@@ -7,57 +8,61 @@ require "nokogiri"
 module Postsvg
   autoload :VERSION, "postsvg/version"
 
-  # Errors
+  # ============================================================
+  # Posts created and managed by the +postscript+ gem.
+  # ============================================================
+  #
+  # `postscript` owns PS source parsing, the typed PS domain model,
+  # and the PS source serializer. The `Postscript` namespace is the
+  # canonical location; the aliases below keep existing user code
+  # working during the transition (deprecated, will be removed at
+  # postsvg 1.0).
+  #
+  # If you maintain postsvg, prefer `Postscript::*` in new code.
+
+  Source       = Postscript::Source
+  Model        = Postscript::Model
+  Serializer   = Postscript::Serializer
+  Matrix       = Postscript::Matrix
+  Color        = Postscript::Color
+  FormatNumber = Postscript::FormatNumber
+
+  ParseError              = Postscript::ParseError
+  LexError                = Postscript::LexError
+  SyntaxError             = Postscript::SyntaxError
+  StackUnderflowError     = Postscript::StackUnderflowError
+  UndefinedOperatorError  = Postscript::UndefinedOperatorError
+  RecursionLimitError     = Postscript::RecursionLimitError
+  RenderError             = Postscript::RenderError
+  SerializeError          = Postscript::SerializeError
+  ExitSignal              = Postscript::ExitSignal
+  QuitSignal              = Postscript::QuitSignal
+
+  # ============================================================
+  # Errors that originate in the SVG side (kept here, not in postscript).
+  # ============================================================
   autoload :Error, "postsvg/errors"
-  autoload :ParseError, "postsvg/errors"
-  autoload :LexError, "postsvg/errors"
-  autoload :SyntaxError, "postsvg/errors"
-  autoload :RenderError, "postsvg/errors"
-  autoload :StackUnderflowError, "postsvg/errors"
-  autoload :UndefinedOperatorError, "postsvg/errors"
-  autoload :RecursionLimitError, "postsvg/errors"
-  autoload :SizeLimitError, "postsvg/errors"
   autoload :TranslationError, "postsvg/errors"
   autoload :UnsupportedElementError, "postsvg/errors"
   autoload :UnresolvedReferenceError, "postsvg/errors"
-  autoload :SerializeError, "postsvg/errors"
-  autoload :ConversionError, "postsvg/errors"
-  autoload :UnsupportedOperatorError, "postsvg/errors"
-  autoload :ExitSignal, "postsvg/errors"
-  autoload :QuitSignal, "postsvg/errors"
 
-  # Foundational value types
-  autoload :FormatNumber, "postsvg/format_number"
-  autoload :Matrix, "postsvg/matrix"
-  autoload :Color, "postsvg/color"
+  # Legacy alias for RenderError (postsvg 0.1 API).
+  ConversionError = RenderError
+  # Legacy alias for UndefinedOperatorError (postsvg 0.1 API).
+  UnsupportedOperatorError = UndefinedOperatorError
 
-  # Source-reading layer (PS source -> Model::Program)
-  autoload :Source, "postsvg/source"
-
-  # PS domain model
-  autoload :Model, "postsvg/model"
-
-  # Graphics state
+  # ============================================================
+  # Rendering / SVG-side types owned by postsvg.
+  # ============================================================
   autoload :GraphicsContext, "postsvg/graphics_context"
   autoload :GraphicsStack, "postsvg/graphics_stack"
   autoload :PathBuilder, "postsvg/path_builder"
-
-  # SVG emission (forward direction)
   autoload :SvgBuilder, "postsvg/svg_builder"
-
-  # Forward direction (PS -> SVG)
   autoload :Options, "postsvg/options"
   autoload :Renderer, "postsvg/renderer"
   autoload :Visitors, "postsvg/visitors"
-
-  # SVG domain model (reverse direction input)
   autoload :Svg, "postsvg/svg"
-
-  # Reverse direction (SVG -> PS)
   autoload :Translation, "postsvg/translation"
-  autoload :Serializer, "postsvg/serializer"
-
-  # CLI
   autoload :CLI, "postsvg/cli"
 
   # Legacy implementations retained on disk for reference. Not on the
@@ -73,7 +78,7 @@ module Postsvg
   class << self
     # PS/EPS source -> SVG string.
     def to_svg(source, **options)
-      program = Source.parse(source)
+      program = Postscript::Source.parse(source)
       Renderer.call(program, Options.new(**options))
     end
 

@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "canon", github: "lutaml/canon", branch: "main"
+gem "canon"
 gem "nokogiri"
 gem "rake"
 gem "rspec"

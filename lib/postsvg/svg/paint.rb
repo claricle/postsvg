@@ -15,7 +15,7 @@ module Postsvg
         end
 
         color = begin
-          ::Postsvg::Color.parse(text.to_s)
+          ::Postscript::Color.parse(text.to_s)
         rescue ArgumentError
           nil
         end

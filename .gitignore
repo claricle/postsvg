@@ -58,3 +58,5 @@ Gemfile.lock
 .rspec_status
 .DS_Store
 reference/
+
+TODO*

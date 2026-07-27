@@ -7,17 +7,17 @@ module Postsvg
       # GraphicsContext; the next paint operator reads the new colors.
       module Color
         def visit_setgray(op, _ctx)
-          color = Postsvg::Color.gray(op.gray.to_f)
+          color = Postscript::Color.gray(op.gray.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 
         def visit_setrgbcolor(op, _ctx)
-          color = Postsvg::Color.rgb(op.red.to_f, op.green.to_f, op.blue.to_f)
+          color = Postscript::Color.rgb(op.red.to_f, op.green.to_f, op.blue.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 
         def visit_setcmykcolor(op, _ctx)
-          color = Postsvg::Color.cmyk(op.cyan.to_f, op.magenta.to_f, op.yellow.to_f, op.key.to_f)
+          color = Postscript::Color.cmyk(op.cyan.to_f, op.magenta.to_f, op.yellow.to_f, op.key.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 
@@ -45,7 +45,7 @@ module Postsvg
             when 4 then [t, p, v]
             else        [v, p, q]
             end
-          Postsvg::Color.rgb(r, g, b)
+          Postscript::Color.rgb(r, g, b)
         end
       end
     end
