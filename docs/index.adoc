@@ -1,7 +1,7 @@
 = Postsvg Documentation
 :page-layout: home
-:page-title: Postsvg - Pure Ruby PostScript to SVG Converter
-:page-description: Convert PostScript and EPS files to SVG using pure Ruby
+:page-title: Postsvg - Pure Ruby PS/EPS ⇔ SVG Converter
+:page-description: Convert PostScript, EPS, and SVG bidirectionally using pure Ruby
 :page-nav_order: 1
 
 image:https://img.shields.io/gem/v/postsvg.svg[Gem Version,link=https://rubygems.org/gems/postsvg]
@@ -10,15 +10,24 @@ image:https://img.shields.io/github/license/metanorma/postsvg.svg[License,link=h
 
 == Purpose
 
-Postsvg is a pure Ruby library for converting PostScript (PS) and Encapsulated PostScript (EPS) files to Scalable Vector Graphics (SVG) format.
+Postsvg is a pure-Ruby transformer between PostScript/EPS and SVG. Both
+directions are implemented:
 
-Unlike traditional approaches that rely on external tools like Ghostscript or Inkscape, Postsvg provides a native Ruby implementation with no external dependencies, making it ideal for:
+* **PS/EPS → SVG** — full PLRM Level 1 path/color/state/transform coverage
+* **SVG → PS/EPS** — rect, circle, ellipse, line, polygon, polyline,
+  path (full M/L/H/V/C/S/Q/T/A/Z command set), text, group, defs,
+  clipPath
 
-* Converting legacy PostScript graphics to modern SVG format
-* Processing vector graphics without external dependencies
-* Generating SVG from PostScript programmatically
-* Working with EPS files in pure Ruby environments
-* CI/CD pipelines requiring PostScript validation
+The same `Postsvg::Model::Program` value object backs both directions,
+so round-trip (`Postsvg.to_svg(Postsvg.to_ps(svg))`) preserves geometry
+for the supported subset.
+
+Typical use cases:
+
+* Converting legacy PostScript graphics to modern SVG
+* Generating PostScript from SVG for print / publishing pipelines
+* Processing vector graphics without external tools
+* Round-tripping between PS and SVG in CI / build pipelines
 
 == References
 
@@ -33,26 +42,30 @@ Unlike traditional approaches that rely on external tools like Ghostscript or In
 # Install the gem
 gem install postsvg
 
-# Convert a file
+# PS/EPS -> SVG
 postsvg convert input.eps output.svg
 
-# Batch convert a directory
-postsvg batch ps_files/ svg_files/
+# SVG -> PS
+postsvg to-ps input.svg output.ps
 
-# Validate PostScript files
-postsvg check document.ps --level=full
+# SVG -> EPS
+postsvg to-eps input.svg output.eps
+
+# Batch with auto-detected direction
+postsvg batch mixed_files/ output_files/
 ----
 
 [source,ruby]
 ----
 require 'postsvg'
 
-# Convert PostScript content
-ps_content = File.read('input.ps')
-svg = Postsvg.convert(ps_content)
+# Forward: PS/EPS -> SVG
+svg = Postsvg.to_svg(File.read('input.ps'))
+Postsvg.to_svg_file('input.eps', 'output.svg')
 
-# Convert and save a file
-Postsvg.convert_file('input.eps', 'output.svg')
+# Reverse: SVG -> PS / EPS
+ps  = Postsvg.to_ps(File.read('input.svg'))
+eps = Postsvg.to_eps(File.read('input.svg'))
 ----
 
 == Documentation Sections
@@ -72,17 +85,14 @@ Command-line interface documentation with detailed usage examples and options.
 link:postscript.adoc[**PostScript Language**]::
 Comprehensive PostScript operator reference, language fundamentals, and SVG mapping guide.
 
-link:validation.adoc[**Validation System**]::
-File validation tools, quality checks, validation levels, and CI/CD integration patterns.
+link:architecture.adoc[**Architecture**]::
+Internal architecture: Lexer, AstBuilder, Model, Renderer/Visitor, SvgBuilder, Translation, Serializer.
 
 link:optimization.adoc[**SVG Optimization**]::
 Automatic optimization features including clipPath deduplication and performance tuning.
 
-link:architecture.adoc[**Architecture**]::
-Internal architecture, three-stage conversion pipeline, design patterns, and implementation details.
-
 link:advanced-topics.adoc[**Advanced Topics**]::
-Custom operators, strict mode, error handling, and advanced usage patterns.
+Custom operators, error handling, and advanced usage patterns.
 
 link:development.adoc[**Development Guide**]::
 Contributing guidelines, testing procedures, code style, and extending Postsvg.
