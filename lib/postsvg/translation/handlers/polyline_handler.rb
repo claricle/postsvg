@@ -14,9 +14,11 @@ module Postsvg
           points = element.points
           points.each_slice(2).with_index do |(x, y), idx|
             if idx.zero?
-              context.emitter.emit(Model::Operators::Path::Moveto.new(x: x, y: y))
+              context.emitter.emit(Model::Operators::Path::Moveto.new(x: x,
+                                                                      y: y))
             else
-              context.emitter.emit(Model::Operators::Path::Lineto.new(x: x, y: y))
+              context.emitter.emit(Model::Operators::Path::Lineto.new(x: x,
+                                                                      y: y))
             end
           end
           context.emitter.emit(Model::Operators::Painting::Stroke.new)

@@ -15,8 +15,8 @@ module Postsvg
           cy = element.cy
           if r.to_f.positive?
             context.emitter.emit(Model::Operators::Path::Arc.new(
-              x: cx, y: cy, radius: r, angle1: 0, angle2: 360,
-            ))
+                                   x: cx, y: cy, radius: r, angle1: 0, angle2: 360,
+                                 ))
           end
           emit_paint(element, context)
           context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)

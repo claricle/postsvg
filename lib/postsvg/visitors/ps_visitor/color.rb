@@ -12,17 +12,20 @@ module Postsvg
         end
 
         def visit_setrgbcolor(op, _ctx)
-          color = Postscript::Color.rgb(op.red.to_f, op.green.to_f, op.blue.to_f)
+          color = Postscript::Color.rgb(op.red.to_f, op.green.to_f,
+                                        op.blue.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 
         def visit_setcmykcolor(op, _ctx)
-          color = Postscript::Color.cmyk(op.cyan.to_f, op.magenta.to_f, op.yellow.to_f, op.key.to_f)
+          color = Postscript::Color.cmyk(op.cyan.to_f, op.magenta.to_f,
+                                         op.yellow.to_f, op.key.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 
         def visit_sethsbcolor(op, _ctx)
-          color = hsb_to_color(op.hue.to_f, op.saturation.to_f, op.brightness.to_f)
+          color = hsb_to_color(op.hue.to_f, op.saturation.to_f,
+                               op.brightness.to_f)
           @graphics.update(fill_color: color, stroke_color: color)
         end
 

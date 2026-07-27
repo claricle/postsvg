@@ -13,7 +13,10 @@ module Postsvg
     attr_reader :program, :options, :builder, :visitor
 
     def initialize(program, options)
-      raise ArgumentError, "program must be a Model::Program" unless program.is_a?(Model::Program)
+      unless program.is_a?(Model::Program)
+        raise ArgumentError,
+              "program must be a Model::Program"
+      end
 
       @program = program
       @options = options
@@ -62,7 +65,8 @@ module Postsvg
         [viewbox, width, height]
       else
         width, height = options.page_size
-        ["0 0 #{FormatNumber.call(width)} #{FormatNumber.call(height)}", width, height]
+        ["0 0 #{FormatNumber.call(width)} #{FormatNumber.call(height)}", width,
+         height]
       end
     end
 

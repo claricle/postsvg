@@ -34,7 +34,9 @@ module Postsvg
           # Concatenate the d attributes of all child <path> elements
           # in document order. Other shape children are converted to
           # path data lazily; for now we only support <path>.
-          ds = node.xpath(".//*[local-name()='path']").map { |p| p["d"] }.compact
+          ds = node.xpath(".//*[local-name()='path']").filter_map do |p|
+            p["d"]
+          end
           registry[id] = ds.join(" ") unless ds.empty?
         end
         new(registry)

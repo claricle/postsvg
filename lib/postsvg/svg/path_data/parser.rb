@@ -10,7 +10,7 @@ module Postsvg
         module_function
 
         COMMAND_RE = /([MmLlHhVvCcSsQqTtAaZz])/
-        ARG_RE = /(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/.freeze
+        ARG_RE = /(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/
 
         def parse(text)
           return [] if text.nil? || text.empty?
@@ -36,7 +36,11 @@ module Postsvg
               commands << Command.new(opcode: opcode, args: args)
               i += consumed
               # After moveto, implicit lineto for subsequent tuples.
-              opcode = (opcode == "M") ? "L" : (opcode == "m" ? "l" : opcode)
+              opcode = if opcode == "M"
+                         "L"
+                       else
+                         (opcode == "m" ? "l" : opcode)
+                       end
               # For H/V/Z, no implicit repetition.
               break if %w[H V Z h v z].include?(opcode)
             end
@@ -57,12 +61,12 @@ module Postsvg
         end
 
         def tokenize(text)
-          text.to_s.gsub(/-/, " -")
-               .scan(/([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/)
-               .flatten.compact
+          text.to_s.gsub("-", " -")
+            .scan(/([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/)
+            .flatten.compact
         end
 
-        NUMBER_ONLY_RE = /\A-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\z/.freeze
+        NUMBER_ONLY_RE = /\A-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\z/
 
         def take_args(tokens, start, count)
           args = []

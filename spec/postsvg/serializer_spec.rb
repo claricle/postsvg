@@ -9,7 +9,9 @@ RSpec.describe Postsvg::Serializer do
 
   it "emits a header with EPSF-3.0 marker when eps: true" do
     program = Postsvg::Model::Program.new(
-      header: Postsvg::Model::Program::Header.new(bounding_box: [0, 0, 100, 100], epsf: true),
+      header: Postsvg::Model::Program::Header.new(
+        bounding_box: [0, 0, 100, 100], epsf: true,
+      ),
       body: [],
     )
     out = serialize(program, eps: true)
@@ -29,13 +31,15 @@ RSpec.describe Postsvg::Serializer do
 
   it "emits setrgbcolor with three floats" do
     program = Postsvg::Model::Program.new(
-      body: [Postsvg::Model::Operators::Color::Setrgbcolor.new(red: 1, green: 0.5, blue: 0)],
+      body: [Postsvg::Model::Operators::Color::Setrgbcolor.new(red: 1,
+                                                               green: 0.5, blue: 0)],
     )
     expect(serialize(program)).to include("1 0.5 0 setrgbcolor")
   end
 
   it "emits arc with operands" do
-    op = Postsvg::Model::Operators::Path::Arc.new(x: 0, y: 0, radius: 10, angle1: 0, angle2: 360)
+    op = Postsvg::Model::Operators::Path::Arc.new(x: 0, y: 0, radius: 10,
+                                                  angle1: 0, angle2: 360)
     program = Postsvg::Model::Program.new(body: [op])
     expect(serialize(program)).to include("0 0 10 0 360 arc")
   end

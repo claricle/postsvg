@@ -72,10 +72,14 @@ module Postsvg
 
         def visit_maxlength(op, _ctx)
           # PS dictionaries can grow dynamically; report current size.
-          case op.operand
-          when Hash then @stack << op.operand.length
-          when Model::Literals::Dictionary then @stack << op.operand.entries.length
-          else @stack << 0
+          @stack << dict_size(op.operand)
+        end
+
+        def dict_size(operand)
+          case operand
+          when Hash then operand.length
+          when Model::Literals::Dictionary then operand.entries.length
+          else 0
           end
         end
 

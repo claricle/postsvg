@@ -22,7 +22,7 @@ module Postsvg
       {
         eps: @eps, width: @width, height: @height,
         viewbox_override: @viewbox_override, verbose: @verbose,
-        page_size: @page_size,
+        page_size: @page_size
       }
     end
   end

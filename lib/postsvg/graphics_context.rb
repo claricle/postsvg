@@ -60,7 +60,8 @@ module Postsvg
         font_name: overrides.fetch(:font_name, @font_name),
         font_size: overrides.fetch(:font_size, @font_size),
         clip_paths: overrides.fetch(:clip_paths, @clip_paths),
-        last_text_position: overrides.fetch(:last_text_position, @last_text_position),
+        last_text_position: overrides.fetch(:last_text_position,
+                                            @last_text_position),
         fill_rule: overrides.fetch(:fill_rule, @fill_rule),
       )
     end

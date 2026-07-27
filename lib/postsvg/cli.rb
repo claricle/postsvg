@@ -8,7 +8,8 @@ module Postsvg
   class CLI < Thor
     package_name "postsvg"
 
-    desc "convert INPUT [OUTPUT]", "Convert PostScript/EPS file to SVG (legacy alias for to-svg)"
+    desc "convert INPUT [OUTPUT]",
+         "Convert PostScript/EPS file to SVG (legacy alias for to-svg)"
     long_desc <<~DESC
       Convert a PostScript (.ps) or Encapsulated PostScript (.eps) file to SVG.
 
@@ -20,7 +21,8 @@ module Postsvg
         $ postsvg convert input.eps > output.svg
     DESC
     def convert(input_path, output_path = nil)
-      handle_input(input_path, output_path, method(:read_ps_to_svg), direction: "PS/EPS -> SVG")
+      handle_input(input_path, output_path, method(:read_ps_to_svg),
+                   direction: "PS/EPS -> SVG")
     end
 
     desc "to-svg INPUT [OUTPUT]", "Convert PostScript/EPS to SVG"
@@ -42,7 +44,8 @@ module Postsvg
         $ postsvg to-ps input.svg > output.ps
     DESC
     def to_ps(input_path, output_path = nil)
-      handle_input(input_path, output_path, method(:read_svg_to_ps), direction: "SVG -> PS")
+      handle_input(input_path, output_path, method(:read_svg_to_ps),
+                   direction: "SVG -> PS")
     end
 
     desc "to-eps INPUT [OUTPUT]", "Convert SVG to Encapsulated PostScript"
@@ -51,10 +54,12 @@ module Postsvg
       suitable for embedding.
     DESC
     def to_eps(input_path, output_path = nil)
-      handle_input(input_path, output_path, method(:read_svg_to_eps), direction: "SVG -> EPS")
+      handle_input(input_path, output_path, method(:read_svg_to_eps),
+                   direction: "SVG -> EPS")
     end
 
-    desc "batch INPUT_DIR [OUTPUT_DIR]", "Convert all PS/EPS/SVG files in a directory"
+    desc "batch INPUT_DIR [OUTPUT_DIR]",
+         "Convert all PS/EPS/SVG files in a directory"
     long_desc <<~DESC
       Auto-detects direction by file extension:
 

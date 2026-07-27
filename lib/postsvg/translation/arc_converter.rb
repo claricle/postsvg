@@ -26,8 +26,8 @@ module Postsvg
         # Step 1: rotate and scale (x1,y1) into the unit-circle frame.
         dx = (x1 - x2) / 2.0
         dy = (y1 - y2) / 2.0
-        x1p =  cos_phi * dx + sin_phi * dy
-        y1p = -sin_phi * dx + cos_phi * dy
+        x1p = (cos_phi * dx) + (sin_phi * dy)
+        y1p = (-sin_phi * dx) + (cos_phi * dy)
 
         # Ensure radii are large enough; if not, scale them up.
         rx_sq = rx * rx
@@ -44,17 +44,17 @@ module Postsvg
         end
 
         # Step 2: compute center (cx', cy') in the rotated frame.
-        sign = (large_arc == sweep) ? -1 : 1
-        num = rx_sq * ry_sq - rx_sq * y1p_sq - ry_sq * x1p_sq
-        den = rx_sq * y1p_sq + ry_sq * x1p_sq
+        sign = large_arc == sweep ? -1 : 1
+        num = (rx_sq * ry_sq) - (rx_sq * y1p_sq) - (ry_sq * x1p_sq)
+        den = (rx_sq * y1p_sq) + (ry_sq * x1p_sq)
         den = EPSILON if den.abs < EPSILON
         coef = sign * Math.sqrt([num / den, 0.0].max)
         cxp =  coef * (rx * y1p) / ry
         cyp = -coef * (ry * x1p) / rx
 
         # Step 3: rotate (cx', cy') back into original frame.
-        cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2.0
-        cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2.0
+        cx = (cos_phi * cxp) - (sin_phi * cyp) + ((x1 + x2) / 2.0)
+        cy = (sin_phi * cxp) + (cos_phi * cyp) + ((y1 + y2) / 2.0)
 
         # Step 4: compute angles.
         ux = (x1p - cxp) / rx
@@ -73,13 +73,23 @@ module Postsvg
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/ParameterLists
 
       def angle_between(ux, uy, vx, vy)
-        dot = ux * vx + uy * vy
-        len = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy))
+        len = vector_length(ux, uy, vx, vy)
         return 0.0 if len < EPSILON
 
-        cos_val = (dot / len).clamp(-1.0, 1.0)
-        sign = (ux * vy - uy * vx).negative? ? -1.0 : 1.0
-        sign * Math.acos(cos_val)
+        cos_val = (dot_product(ux, uy, vx, vy) / len).clamp(-1.0, 1.0)
+        cross_sign(ux, uy, vx, vy) * Math.acos(cos_val)
+      end
+
+      def vector_length(ux, uy, vx, vy)
+        Math.sqrt(((ux * ux) + (uy * uy)) * ((vx * vx) + (vy * vy)))
+      end
+
+      def dot_product(ux, uy, vx, vy)
+        (ux * vx) + (uy * vy)
+      end
+
+      def cross_sign(ux, uy, vx, vy)
+        ((ux * vy) - (uy * vx)).negative? ? -1.0 : 1.0
       end
     end
   end

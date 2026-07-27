@@ -23,7 +23,8 @@ module Postsvg
           pos = @graphics.current.last_text_position
           base_x = pos ? pos[:x] : 0
           base_y = pos ? pos[:y] : 0
-          @graphics.update(last_text_position: { x: base_x + op.dx, y: base_y + op.dy })
+          @graphics.update(last_text_position: { x: base_x + op.dx,
+                                                 y: base_y + op.dy })
         end
 
         def visit_lineto(op, _ctx)
@@ -77,8 +78,8 @@ module Postsvg
 
           # If the current path is empty, the arc implicitly starts
           # with a moveto to its starting point.
-          if @path.empty? || last_command_starts_with?("M")
-            @path.move_to(start_x, start_y) if @path.empty?
+          if (@path.empty? || last_command_starts_with?("M")) && @path.empty?
+            @path.move_to(start_x, start_y)
           end
 
           delta = (angle2 - angle1) % 360
@@ -86,7 +87,11 @@ module Postsvg
           large_arc = delta > 180
 
           # SVG sweep flag is 1 when the arc is drawn clockwise.
-          svg_sweep = sweep ? (delta.positive? ? 1 : 0) : 0
+          svg_sweep = if sweep
+                        delta.positive? ? 1 : 0
+                      else
+                        0
+                      end
           if delta.abs < 1e-6
             # Full circle: emit two arcs.
             mid_angle = angle1 + 180

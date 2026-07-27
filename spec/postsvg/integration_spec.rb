@@ -10,8 +10,10 @@ require "spec_helper"
 RSpec.describe "Postsvg Integration Tests" do
   fixtures = [
     ["spec/fixtures/eps2svg/img.eps", "spec/fixtures/eps2svg/ref.svg"],
-    ["spec/fixtures/ps2svg/colors.ps", "spec/fixtures/ps2svg/colors_expected.svg"],
-    ["spec/fixtures/ps2svg/example_full.ps", "spec/fixtures/ps2svg/example_full_expected.svg"],
+    ["spec/fixtures/ps2svg/colors.ps",
+     "spec/fixtures/ps2svg/colors_expected.svg"],
+    ["spec/fixtures/ps2svg/example_full.ps",
+     "spec/fixtures/ps2svg/example_full_expected.svg"],
     ["spec/fixtures/ps2svg/file.ps", "spec/fixtures/ps2svg/file_expected.svg"],
     ["spec/fixtures/ps2svg/prog.ps", "spec/fixtures/ps2svg/prog_expected.svg"],
     ["spec/fixtures/ps2svg/img.ps", "spec/fixtures/ps2svg/ref.svg"],
@@ -26,7 +28,7 @@ RSpec.describe "Postsvg Integration Tests" do
       expect(actual_svg).to start_with("<?xml")
       expect(actual_svg).to include("<svg")
       expect(actual_svg).to include("</svg>")
-      expect(actual_svg).to match(/viewBox="/)
+      expect(actual_svg).to include('viewBox="')
     end
   end
 end
