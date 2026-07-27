@@ -41,14 +41,14 @@ end
 
 RSpec.describe Postsvg::Svg::PathData do
   it "parses moveto + lineto + closepath" do
-    cmds = Postsvg::Svg::PathData.parse("M 10 10 L 20 20 Z")
+    cmds = described_class.parse("M 10 10 L 20 20 Z")
     expect(cmds.map(&:opcode)).to eq(%w[M L Z])
     expect(cmds[0].args).to eq([10.0, 10.0])
     expect(cmds[1].args).to eq([20.0, 20.0])
   end
 
   it "supports implicit lineto after moveto" do
-    cmds = Postsvg::Svg::PathData.parse("M 10 10 20 20 30 30")
+    cmds = described_class.parse("M 10 10 20 20 30 30")
     expect(cmds.map(&:opcode)).to eq(%w[M L L])
   end
 end

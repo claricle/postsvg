@@ -31,15 +31,25 @@ module Postsvg
         end
 
         def visit_scalefont(op, _ctx)
-          size = op.size.to_i || op.size.to_f
+          size = op.size.to_i
           font = @stack.pop
-          base = font.is_a?(FontRef) ? font : FontRef.new(name: "Helvetica", size: nil)
+          base = if font.is_a?(FontRef)
+                   font
+                 else
+                   FontRef.new(name: "Helvetica",
+                               size: nil)
+                 end
           @stack << FontRef.new(name: base.name, size: size.to_f)
         end
 
         def visit_setfont(_op, _ctx)
           font = @stack.pop
-          ref = font.is_a?(FontRef) ? font : FontRef.new(name: "Helvetica", size: 12.0)
+          ref = if font.is_a?(FontRef)
+                  font
+                else
+                  FontRef.new(name: "Helvetica",
+                              size: 12.0)
+                end
           @graphics.update(font_name: ref.name || "Helvetica",
                            font_size: ref.size || 12.0)
         end

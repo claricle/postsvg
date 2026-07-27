@@ -23,12 +23,14 @@ module Postsvg
         end
 
         def visit_setlinecap(op, _ctx)
-          name = { 0 => :butt, 1 => :round, 2 => :square }.fetch(op.cap_code, :butt)
+          name = { 0 => :butt, 1 => :round, 2 => :square }.fetch(op.cap_code,
+                                                                 :butt)
           @graphics.update(line_cap: name)
         end
 
         def visit_setlinejoin(op, _ctx)
-          name = { 0 => :miter, 1 => :round, 2 => :bevel }.fetch(op.join_code, :miter)
+          name = { 0 => :miter, 1 => :round, 2 => :bevel }.fetch(op.join_code,
+                                                                 :miter)
           @graphics.update(line_join: name)
         end
 
@@ -44,8 +46,6 @@ module Postsvg
               pattern.map { |v| FormatNumber.call(v.to_f) }.join(" ")
             when Numeric
               FormatNumber.call(pattern.to_f)
-            else
-              nil
             end
           @graphics.update(dash: dash_str)
         end

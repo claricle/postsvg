@@ -11,7 +11,8 @@ module Postsvg
           emit_transform(element, context)
           emit_paint_setup(element, context)
           element.children.each do |child|
-            Postsvg::Translation::PsRenderer::DEFAULT_REGISTRY.translate(child, context)
+            Postsvg::Translation::PsRenderer::DEFAULT_REGISTRY.translate(child,
+                                                                         context)
           end
           context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)
         end

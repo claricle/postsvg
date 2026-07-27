@@ -9,7 +9,8 @@ module Postsvg
         # getter, so no capability check is needed.
         def self.call(element, context)
           element.children.each do |child|
-            Postsvg::Translation::PsRenderer.default_registry.translate(child, context)
+            Postsvg::Translation::PsRenderer.default_registry.translate(child,
+                                                                        context)
           end
         end
       end

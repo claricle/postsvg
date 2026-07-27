@@ -20,8 +20,8 @@ module Postsvg
         def emit_paint(element, context)
           fill_paint = element.fill
           stroke_paint = element.stroke_paint
-          fill_on = fill_paint && fill_paint.color?
-          stroke_on = stroke_paint && stroke_paint.color?
+          fill_on = fill_paint&.color?
+          stroke_on = stroke_paint&.color?
 
           if fill_on && stroke_on
             emit_fill(element, context)
@@ -52,26 +52,26 @@ module Postsvg
 
         def emit_fill(element, context)
           paint = element.fill
-          return unless paint && paint.color?
+          return unless paint&.color?
 
           color = paint.value
           if color.gray?
             context.emitter.emit(Model::Operators::Color::Setgray.new(gray: color.gray_level))
           else
             context.emitter.emit(Model::Operators::Color::Setrgbcolor.new(
-              red: color.red / 255.0, green: color.green / 255.0, blue: color.blue / 255.0,
-            ))
+                                   red: color.red / 255.0, green: color.green / 255.0, blue: color.blue / 255.0,
+                                 ))
           end
         end
 
         def emit_stroke(element, context)
           paint = element.stroke_paint
-          return unless paint && paint.color?
+          return unless paint&.color?
 
           color = paint.value
           context.emitter.emit(Model::Operators::Color::Setrgbcolor.new(
-            red: color.red / 255.0, green: color.green / 255.0, blue: color.blue / 255.0,
-          ))
+                                 red: color.red / 255.0, green: color.green / 255.0, blue: color.blue / 255.0,
+                               ))
           stroke = element.stroke
           return unless stroke
 
@@ -92,8 +92,8 @@ module Postsvg
 
           transform.matrices.each do |matrix|
             context.emitter.emit(Model::Operators::Transformations::Concat.new(matrix: [
-              matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f,
-            ]))
+                                                                                 matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f
+                                                                               ]))
           end
         end
 
@@ -102,7 +102,7 @@ module Postsvg
           ys = points.each_slice(2).map(&:last)
           return if xs.empty?
 
-          context.expand_bbox!((xs.min..xs.max), (ys.min..ys.max))
+          context.expand_bbox!(xs.min..xs.max, ys.min..ys.max)
         end
       end
     end

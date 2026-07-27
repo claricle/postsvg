@@ -13,7 +13,7 @@ module Postsvg
         def normalize_key(key)
           case key
           when Model::Literals::Name then key.value
-          when String then key.to_s.sub(/\A\//, "")
+          when String then key.to_s.delete_prefix("/")
           else key.to_s
           end
         end
@@ -25,7 +25,6 @@ module Postsvg
           when String then node
           when Model::Literals::StringLiteral then node.value
           when Model::Literals::HexLiteral then node.bytes
-          else nil
           end
         end
 

@@ -11,9 +11,9 @@ module Postsvg
   # - <defs> block orders clipPaths, gradients, then patterns by
   #   registration order so output is reproducible.
   class SvgBuilder
-    CLIP_PREFIX = "clip".freeze
-    GRADIENT_PREFIX = "grad".freeze
-    PATTERN_PREFIX = "pattern".freeze
+    CLIP_PREFIX = "clip"
+    GRADIENT_PREFIX = "grad"
+    PATTERN_PREFIX = "pattern"
 
     def initialize
       @buffer = String.new(capacity: 4096)
@@ -132,7 +132,7 @@ module Postsvg
     def path(d:, mode:, color: nil, stroke_color: nil,
              stroke_width: nil, line_cap: nil, line_join: nil,
              dash: nil, clip_path_id: nil, fill_id: nil)
-      attrs = +"d=\"#{d}\""
+      attrs = "d=\"#{d}\""
 
       attrs << case mode
                when :fill
@@ -140,7 +140,8 @@ module Postsvg
                when :stroke
                  %( fill="none" stroke="#{color_attr(stroke_color || color)}")
                when :fill_and_stroke
-                 "#{fill_attr(color, fill_id)} stroke=\"#{color_attr(stroke_color || color)}\""
+                 "#{fill_attr(color,
+                              fill_id)} stroke=\"#{color_attr(stroke_color || color)}\""
                else
                  %( fill="none" stroke="none")
                end
@@ -184,7 +185,10 @@ module Postsvg
 
     def close_svg
       raise RenderError, "svg not open" unless @svg_open
-      raise RenderError, "unclosed groups: #{@group_depth}" if @group_depth.positive?
+      if @group_depth.positive?
+        raise RenderError,
+              "unclosed groups: #{@group_depth}"
+      end
 
       @buffer << "<defs>\n" unless @clip_paths.empty? && @gradients.empty? && @patterns.empty?
       @buffer << @defs_buffer
@@ -239,11 +243,11 @@ module Postsvg
 
     def escape(text)
       text.to_s
-          .gsub("&", "&amp;")
-          .gsub("<", "&lt;")
-          .gsub(">", "&gt;")
-          .gsub('"', "&quot;")
-          .gsub("'", "&#39;")
+        .gsub("&", "&amp;")
+        .gsub("<", "&lt;")
+        .gsub(">", "&gt;")
+        .gsub('"', "&quot;")
+        .gsub("'", "&#39;")
     end
   end
 end
