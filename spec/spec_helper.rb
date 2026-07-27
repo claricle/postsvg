@@ -6,6 +6,17 @@ require "canon/rspec_matchers"
 # Configure Canon for spec-friendly XML matching
 Canon::Config.instance.xml.match.profile = :spec_friendly
 
+# Test helpers shared by all example groups.
+module PostsvgSpecHelpers
+  def fixture_path(filename)
+    File.join(__dir__, "fixtures", filename)
+  end
+
+  def read_fixture(filename)
+    File.read(fixture_path(filename))
+  end
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
@@ -17,12 +28,5 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  # Helper method to load fixture files
-  def fixture_path(filename)
-    File.join(__dir__, "fixtures", filename)
-  end
-
-  def read_fixture(filename)
-    File.read(fixture_path(filename))
-  end
+  config.include PostsvgSpecHelpers
 end

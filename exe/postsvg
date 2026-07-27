@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative "../lib/postsvg"
 require_relative "../lib/postsvg/cli"
 
 Postsvg::CLI.start(ARGV)
