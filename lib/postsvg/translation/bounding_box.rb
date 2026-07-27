@@ -27,11 +27,14 @@ module Postsvg
       def expand(x_range, y_range)
         return self if x_range.nil? || y_range.nil?
 
-        new_min_x = [(empty? ? x_range.begin : @min_x), x_range.begin].compact.min
+        new_min_x = [(empty? ? x_range.begin : @min_x),
+                     x_range.begin].compact.min
         new_max_x = [(empty? ? x_range.end : @max_x), x_range.end].compact.max
-        new_min_y = [(empty? ? y_range.begin : @min_y), y_range.begin].compact.min
+        new_min_y = [(empty? ? y_range.begin : @min_y),
+                     y_range.begin].compact.min
         new_max_y = [(empty? ? y_range.end : @max_y), y_range.end].compact.max
-        BoundingBox.new(min_x: new_min_x, min_y: new_min_y, max_x: new_max_x, max_y: new_max_y)
+        BoundingBox.new(min_x: new_min_x, min_y: new_min_y, max_x: new_max_x,
+                        max_y: new_max_y)
       end
 
       def to_a
@@ -51,7 +54,7 @@ module Postsvg
 
         "%s %s %s %s" % [
           FormatNumber.call(@min_x), FormatNumber.call(@min_y),
-          FormatNumber.call(@max_x), FormatNumber.call(@max_y),
+          FormatNumber.call(@max_x), FormatNumber.call(@max_y)
         ]
       end
     end

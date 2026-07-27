@@ -38,7 +38,7 @@ module Postsvg
         (str("\\") >> any) | (str(")").absent? >> any)
       end
       rule(:string) do
-        (str("(") >> string_char.repeat.as(:string) >> str(")"))
+        str("(") >> string_char.repeat.as(:string) >> str(")")
       end
 
       # Operators and keywords
@@ -49,16 +49,16 @@ module Postsvg
 
       # Arrays
       rule(:array) do
-        (str("[") >> whitespace? >>
-         value.repeat.as(:array) >>
-         whitespace? >> str("]"))
+        str("[") >> whitespace? >>
+          value.repeat.as(:array) >>
+          whitespace? >> str("]")
       end
 
       # Procedures (code blocks in curly braces)
       rule(:procedure) do
-        (str("{") >> whitespace? >>
-         statement.repeat.as(:procedure) >>
-         whitespace? >> str("}"))
+        str("{") >> whitespace? >>
+          statement.repeat.as(:procedure) >>
+          whitespace? >> str("}")
       end
 
       # Values

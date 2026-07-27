@@ -9,7 +9,8 @@ module Postsvg
 
         attr_reader :viewbox, :width, :height, :children
 
-        def initialize(viewbox: nil, width: nil, height: nil, children: [], **rest)
+        def initialize(viewbox: nil, width: nil, height: nil, children: [],
+**rest)
           super(**rest)
           @viewbox = viewbox
           @width = width

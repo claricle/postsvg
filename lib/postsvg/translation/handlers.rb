@@ -17,7 +17,8 @@ module Postsvg
       autoload :TextHandler, "postsvg/translation/handlers/text_handler"
       autoload :ImageHandler, "postsvg/translation/handlers/image_handler"
       autoload :DefsHandler, "postsvg/translation/handlers/defs_handler"
-      autoload :ClipPathHandler, "postsvg/translation/handlers/clip_path_handler"
+      autoload :ClipPathHandler,
+               "postsvg/translation/handlers/clip_path_handler"
       autoload :OpenHandler, "postsvg/translation/handlers/open_handler"
       autoload :Shared, "postsvg/translation/handlers/shared"
     end

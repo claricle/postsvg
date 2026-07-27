@@ -22,7 +22,8 @@ module Postsvg
 
         # Control-point reflection state for smooth curves. +nil+ when
         # the previous command wasn't a smooth-eligible curve.
-        SmoothState = Struct.new(:control_x, :control_y, :smoothable, keyword_init: true)
+        SmoothState = Struct.new(:control_x, :control_y, :smoothable,
+                                 keyword_init: true)
 
         def self.call(element, context)
           context.emitter.emit(Model::Operators::GraphicsState::Gsave.new)
@@ -30,7 +31,8 @@ module Postsvg
           context.emitter.emit(Model::Operators::Path::Newpath.new)
 
           state = PathState.new
-          smooth = SmoothState.new(control_x: nil, control_y: nil, smoothable: false)
+          smooth = SmoothState.new(control_x: nil, control_y: nil,
+                                   smoothable: false)
           element.commands.each do |cmd|
             dispatch_command(cmd, state, smooth, context)
           end
@@ -74,7 +76,8 @@ module Postsvg
             context.emitter.emit(Model::Operators::Path::Moveto.new(x: x, y: y))
           else
             state.move_to_rel(x, y)
-            context.emitter.emit(Model::Operators::Path::Rmoveto.new(dx: x, dy: y))
+            context.emitter.emit(Model::Operators::Path::Rmoveto.new(dx: x,
+                                                                     dy: y))
           end
           smooth.smoothable = false
         end
@@ -86,7 +89,8 @@ module Postsvg
             context.emitter.emit(Model::Operators::Path::Lineto.new(x: x, y: y))
           else
             state.line_to_rel(x, y)
-            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: x, dy: y))
+            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: x,
+                                                                     dy: y))
           end
         end
 
@@ -96,18 +100,23 @@ module Postsvg
             if horizontal
               new_x = v
               state.line_to(new_x, state.current_y)
-              context.emitter.emit(Model::Operators::Path::Lineto.new(x: new_x, y: state.current_y))
+              context.emitter.emit(Model::Operators::Path::Lineto.new(x: new_x,
+                                                                      y: state.current_y))
             else
               new_y = v
               state.line_to(state.current_x, new_y)
-              context.emitter.emit(Model::Operators::Path::Lineto.new(x: state.current_x, y: new_y))
+              context.emitter.emit(Model::Operators::Path::Lineto.new(
+                                     x: state.current_x, y: new_y,
+                                   ))
             end
           elsif horizontal
             state.line_to_rel(v, 0)
-            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: v, dy: 0))
+            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: v,
+                                                                     dy: 0))
           else
             state.line_to_rel(0, v)
-            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: 0, dy: v))
+            context.emitter.emit(Model::Operators::Path::Rlineto.new(dx: 0,
+                                                                     dy: v))
           end
         end
 
@@ -116,8 +125,8 @@ module Postsvg
           x1, y1, x2, y2, x3, y3 = adapt_curve_args(args, cmd.opcode, state)
           state.curve_to(x3, y3)
           context.emitter.emit(Model::Operators::Path::Curveto.new(
-            x1: x1, y1: y1, x2: x2, y2: y2, x3: x3, y3: y3,
-          ))
+                                 x1: x1, y1: y1, x2: x2, y2: y2, x3: x3, y3: y3,
+                               ))
           smooth.control_x = x2
           smooth.control_y = y2
           smooth.smoothable = true
@@ -129,14 +138,15 @@ module Postsvg
             x1, y1 = reflect_control(smooth, state)
             state.curve_to(x3, y3)
             context.emitter.emit(Model::Operators::Path::Curveto.new(
-              x1: x1, y1: y1, x2: x2, y2: y2, x3: x3, y3: y3,
-            ))
+                                   x1: x1, y1: y1, x2: x2, y2: y2, x3: x3, y3: y3,
+                                 ))
           else
             dx1, dy1 = reflect_control_rel(smooth, state)
-            state.curve_to_rel(dx2: x2, dy2: y2, dx3: x3, dy3: y3, dx1: dx1, dy1: dy1)
+            state.curve_to_rel(dx2: x2, dy2: y2, dx3: x3, dy3: y3, dx1: dx1,
+                               dy1: dy1)
             context.emitter.emit(Model::Operators::Path::Rcurveto.new(
-              dx1: dx1, dy1: dy1, dx2: x2, dy2: y2, dx3: x3, dy3: y3,
-            ))
+                                   dx1: dx1, dy1: dy1, dx2: x2, dy2: y2, dx3: x3, dy3: y3,
+                                 ))
             x2 = state.current_x - x2
             y2 = state.current_y - y2
           end
@@ -150,15 +160,16 @@ module Postsvg
           qx, qy, x3, y3 = adapt_quadratic_args(args, cmd.opcode, state)
           # Convert quadratic to cubic: c1 = p0 + 2/3*(q-p0),
           # c2 = p3 + 2/3*(q-p3).
-          p0x, p0y = state.current_x, state.current_y
-          c1x = p0x + (2.0 / 3.0) * (qx - p0x)
-          c1y = p0y + (2.0 / 3.0) * (qy - p0y)
-          c2x = x3 + (2.0 / 3.0) * (qx - x3)
-          c2y = y3 + (2.0 / 3.0) * (qy - y3)
+          p0x = state.current_x
+          p0y = state.current_y
+          c1x = p0x + ((2.0 / 3.0) * (qx - p0x))
+          c1y = p0y + ((2.0 / 3.0) * (qy - p0y))
+          c2x = x3 + ((2.0 / 3.0) * (qx - x3))
+          c2y = y3 + ((2.0 / 3.0) * (qy - y3))
           state.curve_to(x3, y3)
           context.emitter.emit(Model::Operators::Path::Curveto.new(
-            x1: c1x, y1: c1y, x2: c2x, y2: c2y, x3: x3, y3: y3,
-          ))
+                                 x1: c1x, y1: c1y, x2: c2x, y2: c2y, x3: x3, y3: y3,
+                               ))
           smooth.control_x = qx
           smooth.control_y = qy
           smooth.smoothable = true
@@ -168,15 +179,17 @@ module Postsvg
           x3, y3 = cmd.args
           qx, qy =
             if smooth.smoothable
-              [reflect_x(smooth.control_x, state), reflect_y(smooth.control_y, state)]
+              [reflect_x(smooth.control_x, state),
+               reflect_y(smooth.control_y, state)]
             else
               [state.current_x, state.current_y]
             end
-          p0x, p0y = state.current_x, state.current_y
-          c1x = p0x + (2.0 / 3.0) * (qx - p0x)
-          c1y = p0y + (2.0 / 3.0) * (qy - p0y)
-          c2x = x3 + (2.0 / 3.0) * (qx - x3)
-          c2y = y3 + (2.0 / 3.0) * (qy - y3)
+          p0x = state.current_x
+          p0y = state.current_y
+          c1x = p0x + ((2.0 / 3.0) * (qx - p0x))
+          c1y = p0y + ((2.0 / 3.0) * (qy - p0y))
+          c2x = x3 + ((2.0 / 3.0) * (qx - x3))
+          c2y = y3 + ((2.0 / 3.0) * (qy - y3))
           if cmd.opcode == "T"
             state.curve_to(x3, y3)
           else
@@ -186,8 +199,8 @@ module Postsvg
             state.current_y = p0y + y3
           end
           context.emitter.emit(Model::Operators::Path::Curveto.new(
-            x1: c1x, y1: c1y, x2: c2x, y2: c2y, x3: state.current_x, y3: state.current_y,
-          ))
+                                 x1: c1x, y1: c1y, x2: c2x, y2: c2y, x3: state.current_x, y3: state.current_y,
+                               ))
           smooth.control_x = qx
           smooth.control_y = qy
           smooth.smoothable = true
@@ -203,7 +216,7 @@ module Postsvg
               x1: state.current_x, y1: state.current_y,
               rx: rx, ry: ry, x_axis_rotation: x_axis_rotation,
               large_arc: large_arc_flag != 0, sweep: sweep_flag != 0,
-              x2: x, y2: y,
+              x2: x, y2: y
             )
           # Emit arc with center, radius, angle range. For elliptical
           # arcs (rx != ry or non-zero rotation), emit scale/rotate
@@ -211,17 +224,19 @@ module Postsvg
           if x_axis_rotation.abs > 1e-6 || (rx - ry).abs > 1e-6
             context.emitter.emit(Model::Operators::GraphicsState::Gsave.new)
             context.emitter.emit(Model::Operators::Transformations::Concat.new(matrix: [
-              Math.cos(psi), Math.sin(psi), -Math.sin(psi), Math.cos(psi), cx, cy,
-            ]))
-            context.emitter.emit(Model::Operators::Transformations::Scale.new(sx: normalized_rx, sy: normalized_ry))
+                                                                                 Math.cos(psi), Math.sin(psi), -Math.sin(psi), Math.cos(psi), cx, cy
+                                                                               ]))
+            context.emitter.emit(Model::Operators::Transformations::Scale.new(
+                                   sx: normalized_rx, sy: normalized_ry,
+                                 ))
             context.emitter.emit(Model::Operators::Path::Arc.new(
-              x: 0, y: 0, radius: 1.0, angle1: theta1, angle2: theta2,
-            ))
+                                   x: 0, y: 0, radius: 1.0, angle1: theta1, angle2: theta2,
+                                 ))
             context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)
           else
             context.emitter.emit(Model::Operators::Path::Arc.new(
-              x: cx, y: cy, radius: normalized_rx, angle1: theta1, angle2: theta2,
-            ))
+                                   x: cx, y: cy, radius: normalized_rx, angle1: theta1, angle2: theta2,
+                                 ))
           end
           state.move_to(x, y)
         end
@@ -254,7 +269,8 @@ module Postsvg
         def self.reflect_control(smooth, state)
           return [state.current_x, state.current_y] unless smooth.smoothable
 
-          [reflect_x(smooth.control_x, state), reflect_y(smooth.control_y, state)]
+          [reflect_x(smooth.control_x, state),
+           reflect_y(smooth.control_y, state)]
         end
 
         def self.reflect_control_rel(smooth, state)
@@ -263,11 +279,11 @@ module Postsvg
         end
 
         def self.reflect_x(control_x, state)
-          2 * state.current_x - control_x
+          (2 * state.current_x) - control_x
         end
 
         def self.reflect_y(control_y, state)
-          2 * state.current_y - control_y
+          (2 * state.current_y) - control_y
         end
 
         # Mutable path-tracking state shared across command handlers.

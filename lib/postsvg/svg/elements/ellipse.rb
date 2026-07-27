@@ -9,7 +9,8 @@ module Postsvg
 
         attr_reader :cx, :cy, :rx, :ry, :fill, :stroke_paint, :stroke
 
-        def initialize(cx:, cy:, rx:, ry:, fill:, stroke_paint:, stroke:, **rest)
+        def initialize(cx:, cy:, rx:, ry:, fill:, stroke_paint:, stroke:,
+**rest)
           super(**rest)
           @cx = cx
           @cy = cy

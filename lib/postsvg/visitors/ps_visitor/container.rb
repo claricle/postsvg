@@ -44,25 +44,25 @@ module Postsvg
           @stack << value
         end
 
-        def visit_put(op, _ctx)
+        def visit_put(_op, _ctx)
           # PS put mutates in place. Our value objects are immutable.
           # Marked as a comment in the output so the gap is visible.
           @builder.comment("put: in-place mutation not supported")
         end
 
         def visit_getinterval(op, _ctx)
-          case op.operand
-          when String
-            @stack << op.operand[op.start, op.count]
-          when Array
-            @stack << op.operand[op.start, op.count]
-          when Model::Literals::StringLiteral
-            @stack << op.operand.value[op.start, op.count]
-          when Model::Literals::ArrayLiteral
-            @stack << op.operand.elements[op.start, op.count]
-          else
-            @stack << ""
-          end
+          @stack << case op.operand
+                    when String
+                      op.operand[op.start, op.count]
+                    when Array
+                      op.operand[op.start, op.count]
+                    when Model::Literals::StringLiteral
+                      op.operand.value[op.start, op.count]
+                    when Model::Literals::ArrayLiteral
+                      op.operand.elements[op.start, op.count]
+                    else
+                      ""
+                    end
         end
 
         def visit_putinterval(_op, _ctx)

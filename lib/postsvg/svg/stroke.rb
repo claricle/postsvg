@@ -14,10 +14,12 @@ module Postsvg
           if dasharray_raw && dasharray_raw != "none"
             AttributeParser.number_list(dasharray_raw)
           end
-        dashoffset = AttributeParser.number(node["stroke-dashoffset"], default: 0.0)
+        dashoffset = AttributeParser.number(node["stroke-dashoffset"],
+                                            default: 0.0)
         linecap = (node["stroke-linecap"] || "butt").to_sym
         linejoin = (node["stroke-linejoin"] || "miter").to_sym
-        miterlimit = AttributeParser.number(node["stroke-miterlimit"], default: 10.0)
+        miterlimit = AttributeParser.number(node["stroke-miterlimit"],
+                                            default: 10.0)
         new(width: width, dasharray: dasharray, dashoffset: dashoffset,
             linecap: linecap, linejoin: linejoin, miterlimit: miterlimit)
       end

@@ -66,7 +66,7 @@ module Postsvg
             line_cap: ctx.line_cap,
             line_join: ctx.line_join,
             dash: ctx.dash,
-            clip_path_id: clip_path_id,
+            clip_path_id: clip_path_id
           )
         end
 

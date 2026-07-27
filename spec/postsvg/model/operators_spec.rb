@@ -3,18 +3,18 @@
 require "postsvg"
 
 RSpec.describe Postsvg::Model::Operators do
-  before(:all) { Postsvg::Model::Operators.load_all! }
+  before(:all) { described_class.load_all! }
 
   describe "registry" do
     it "registers moveto, lineto, stroke, etc." do
       %w[moveto lineto curveto closepath stroke fill setrgbcolor setgray
          gsave grestore translate scale rotate].each do |kw|
-        expect(Postsvg::Model::Operators[kw]).not_to be_nil
+        expect(described_class[kw]).not_to be_nil
       end
     end
 
     it "returns nil for unknown keywords" do
-      expect(Postsvg::Model::Operators["nonsense_12345"]).to be_nil
+      expect(described_class["nonsense_12345"]).to be_nil
     end
   end
 
@@ -33,8 +33,12 @@ RSpec.describe Postsvg::Model::Operators do
     it "pops operands in reverse-source order" do
       stack = Postsvg::Source::OperandStack.new
       # x1 y1 x2 y2 x3 y3
-      stack.push(1); stack.push(2); stack.push(3)
-      stack.push(4); stack.push(5); stack.push(6)
+      stack.push(1)
+      stack.push(2)
+      stack.push(3)
+      stack.push(4)
+      stack.push(5)
+      stack.push(6)
       op = described_class.from_operands(stack)
       expect(op.x1).to eq(1)
       expect(op.y1).to eq(2)
@@ -63,7 +67,9 @@ RSpec.describe Postsvg::Model::Operators do
       visitor = Class.new do
         include Postsvg::Visitors::PsVisitor::Arithmetic
         include Postsvg::Visitors::PsVisitor::Common
+
         attr_reader :stack
+
         def initialize(stack)
           @stack = stack
         end

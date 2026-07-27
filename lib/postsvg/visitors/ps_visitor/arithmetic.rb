@@ -12,19 +12,19 @@ module Postsvg
         def visit_add(_op, _ctx)
           b = pop_runtime_number
           a = pop_runtime_number
-          @stack << a + b
+          @stack << (a + b)
         end
 
         def visit_sub(_op, _ctx)
           b = pop_runtime_number
           a = pop_runtime_number
-          @stack << a - b
+          @stack << (a - b)
         end
 
         def visit_mul(_op, _ctx)
           b = pop_runtime_number
           a = pop_runtime_number
-          @stack << a * b
+          @stack << (a * b)
         end
 
         def visit_div(_op, _ctx)
@@ -32,7 +32,7 @@ module Postsvg
           a = pop_runtime_number
           raise RenderError, "division by zero" if divisor.zero?
 
-          @stack << (a.to_f / divisor.to_f)
+          @stack << (a.to_f / divisor)
         end
 
         def visit_idiv(_op, _ctx)
@@ -85,7 +85,7 @@ module Postsvg
         def visit_atan(_op, _ctx)
           b = pop_runtime_number
           a = pop_runtime_number
-          @stack << Math.atan2(a.to_f, b.to_f) * (180.0 / Math::PI)
+          @stack << (Math.atan2(a.to_f, b.to_f) * (180.0 / Math::PI))
         end
 
         def visit_cos(_op, _ctx)
@@ -107,7 +107,7 @@ module Postsvg
         def visit_exp(_op, _ctx)
           b = pop_runtime_number
           a = pop_runtime_number
-          @stack << a.to_f**b.to_f
+          @stack << (a.to_f**b.to_f)
         end
 
         private

@@ -62,7 +62,9 @@ module Postsvg
           return subclass.from_node(node) if subclass
 
           OpenElement.new(name: node.name,
-                          children: node.element_children.map { |c| from_node(c) })
+                          children: node.element_children.map do |c|
+                            from_node(c)
+                          end)
         end
       end
     end

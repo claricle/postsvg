@@ -75,7 +75,8 @@ module Postsvg
           llx, lly, urx, ury = document.viewbox
           BoundingBox.new(min_x: llx, min_y: lly, max_x: urx, max_y: ury)
         elsif document.width && document.height
-          BoundingBox.new(min_x: 0, min_y: 0, max_x: document.width, max_y: document.height)
+          BoundingBox.new(min_x: 0, min_y: 0, max_x: document.width,
+                          max_y: document.height)
         else
           BoundingBox.empty
         end
