@@ -14,7 +14,7 @@ RSpec.describe "Svg::Element subclasses" do
     expect(rect).to be_a(Postsvg::Svg::Elements::Rect)
     expect(rect.x).to eq(10.0)
     expect(rect.width).to eq(80.0)
-    expect(rect.fill.value).to eq(Postsvg::Color.parse("#aabbcc"))
+    expect(rect.fill.value).to eq(Postscript::Color.parse("#aabbcc"))
   end
 
   it "Circle exposes cx/cy/r" do
