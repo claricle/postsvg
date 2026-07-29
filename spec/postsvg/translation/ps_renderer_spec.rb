@@ -35,10 +35,10 @@ RSpec.describe Postsvg::Translation::PsRenderer do
     document = Postsvg::Svg::Parser.call(svg)
     program = described_class.call(document)
     classes = program.body.map(&:class)
-    expect(classes).to include(Postsvg::Model::Operators::Path::Moveto)
-    expect(classes).to include(Postsvg::Model::Operators::Path::Rlineto)
-    expect(classes).to include(Postsvg::Model::Operators::Path::Closepath)
-    expect(classes).to include(Postsvg::Model::Operators::Painting::Fill)
+    expect(classes).to include(Postscript::Model::Operators::Path::Moveto)
+    expect(classes).to include(Postscript::Model::Operators::Path::Rlineto)
+    expect(classes).to include(Postscript::Model::Operators::Path::Closepath)
+    expect(classes).to include(Postscript::Model::Operators::Painting::Fill)
   end
 
   it "captures the SVG viewbox in the program header bounding_box" do

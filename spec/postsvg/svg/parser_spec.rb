@@ -16,7 +16,7 @@ RSpec.describe Postsvg::Svg::Parser do
     expect(rect.width).to eq(80.0)
     expect(rect.height).to eq(80.0)
     expect(rect.fill).to be_color
-    expect(rect.fill.value).to eq(Postsvg::Color.parse("#aabbcc"))
+    expect(rect.fill.value).to eq(Postscript::Color.parse("#aabbcc"))
   end
 
   it "parses a circle with float radius" do

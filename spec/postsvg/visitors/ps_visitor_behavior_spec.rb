@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe "PsVisitor arithmetic behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\nshowpage\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\nshowpage\n")
     builder = Postsvg::SvgBuilder.new
     visitor = Postsvg::Visitors::PsVisitor.new(builder: builder)
     visitor.visit_program(program)
@@ -58,7 +58,7 @@ end
 
 RSpec.describe "PsVisitor boolean behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
     visitor = Postsvg::Visitors::PsVisitor.new(builder: Postsvg::SvgBuilder.new)
     visitor.visit_program(program)
     visitor
@@ -80,7 +80,7 @@ end
 
 RSpec.describe "PsVisitor control flow behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
     visitor = Postsvg::Visitors::PsVisitor.new(builder: Postsvg::SvgBuilder.new)
     visitor.visit_program(program)
     visitor
@@ -117,7 +117,7 @@ end
 
 RSpec.describe "PsVisitor dictionary behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
     visitor = Postsvg::Visitors::PsVisitor.new(builder: Postsvg::SvgBuilder.new)
     visitor.visit_program(program)
     visitor
@@ -126,7 +126,7 @@ RSpec.describe "PsVisitor dictionary behavior" do
   it "def and load round-trip a value" do
     v = evaluate("/foo 42 def /foo load")
     # Stored value is a Number wrapper; visitor pushes it as-is.
-    expect(v.stack.last).to be_a(Postsvg::Model::Literals::Number)
+    expect(v.stack.last).to be_a(Postscript::Model::Literals::Number)
     expect(v.stack.last.value).to eq(42)
   end
 
@@ -144,7 +144,7 @@ end
 
 RSpec.describe "PsVisitor container behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
     visitor = Postsvg::Visitors::PsVisitor.new(builder: Postsvg::SvgBuilder.new)
     visitor.visit_program(program)
     visitor
@@ -168,7 +168,7 @@ end
 
 RSpec.describe "PsVisitor font behavior" do
   def evaluate(ps_body)
-    program = Postsvg::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
+    program = Postscript::Source.parse("%!PS-Adobe-3.0\n%%BoundingBox: 0 0 100 100\n#{ps_body}\n")
     visitor = Postsvg::Visitors::PsVisitor.new(builder: Postsvg::SvgBuilder.new)
     visitor.visit_program(program)
     visitor

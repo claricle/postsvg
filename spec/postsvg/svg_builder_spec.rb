@@ -10,7 +10,7 @@ RSpec.describe Postsvg::SvgBuilder do
   it "emits a well-formed SVG document" do
     b = builder
     b.open_svg(viewbox: "0 0 100 100", width: 100, height: 100)
-    b.path(d: "M 0 0 L 100 100", mode: :stroke, color: Postsvg::Color::BLACK)
+    b.path(d: "M 0 0 L 100 100", mode: :stroke, color: Postscript::Color::BLACK)
     b.close_svg
     output = b.to_s
     expect(output).to include('<?xml version="1.0"')
@@ -41,7 +41,7 @@ RSpec.describe Postsvg::SvgBuilder do
     b.open_svg(viewbox: "0 0 1 1", width: 1, height: 1)
     b.text(content: "<bad> & stuff", x: 0, y: 0,
            font_family: "Helvetica", font_size: 12,
-           color: Postsvg::Color::BLACK)
+           color: Postscript::Color::BLACK)
     b.close_svg
     expect(b.to_s).to include("&lt;bad&gt;")
     expect(b.to_s).to include("&amp; stuff")
