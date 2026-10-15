@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "nokogiri"
+  spec.add_dependency "leptris"
   spec.add_dependency "parslet"
   spec.add_dependency "postscript", "~> 0.2"
   spec.add_dependency "thor"

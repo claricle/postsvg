@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Postsvg
-  # SVG domain model. Built once from a Nokogiri-parsed document;
+  # SVG domain model. Built once from a leptris-parsed document;
   # consumed by the Translation layer (SVG -> PS).
   #
   # Svg::* value objects know nothing about PostScript. Their job is

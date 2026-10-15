@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require "nokogiri"
+require "leptris"
 
 module Postsvg
   module Svg
-    # Parses an SVG document via Nokogiri and produces an Svg::Document.
+    # Parses an SVG document via leptris and produces an Svg::Document.
     # Pure: no I/O, no global state.
     class Parser
       def self.call(svg_string)
-        doc = Nokogiri::XML(svg_string, &:noblanks)
+        doc = Leptris::XML.parse(svg_string, options: Leptris::XML::ParseOptions.noblanks)
         root = doc.root
         raise TranslationError, "no root element in SVG" unless root
 
