@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "canon"
-gem "nokogiri"
+gem "leptris"
 gem "rake"
 gem "rspec"
 gem "rubocop"

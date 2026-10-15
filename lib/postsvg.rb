@@ -3,7 +3,7 @@
 require "postscript"
 require "parslet"
 require "thor"
-require "nokogiri"
+require "leptris"
 
 module Postsvg
   autoload :VERSION, "postsvg/version"
