@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`postsvg` is a pure-Ruby bidirectional converter between PostScript/EPS and SVG. Both directions are implemented in the 0.2.x line; the SVg→PS direction is newer. The PS side uses a hand-written lexer + stack-machine interpreter; the SVG side uses Nokogiri. There is no Ghostscript, Inkscape, or other external renderer.
+`postsvg` is a pure-Ruby bidirectional converter between PostScript/EPS and SVG. Both directions are implemented in the 0.2.x line; the SVg→PS direction is newer. The PS side uses a hand-written lexer + stack-machine interpreter; the SVG side uses leptris. There is no Ghostscript, Inkscape, or other external renderer.
 
 Code architecture mirrors `emfsvg`: a typed `Model::Program` value object is the single source of truth, with a Renderer / Visitor visiting it to emit SVG, and a Serializer walking it to emit PS.
 
@@ -54,7 +54,7 @@ PS/EPS bytes ──▶│ Postsvg::Lexer       │
                 │                 │
                 ▼                 │
         SVG string               │
-                │ Nokogiri       │
+                │ leptris        │
                 ▼                 │
       ┌─────────────────┐         │
       │ Postsvg::       │         │
@@ -163,7 +163,7 @@ Errors: `Postsvg::ParseError`, `LexError`, `SyntaxError`, `RenderError`, `StackU
 
 ## Dependencies
 
-- `parslet`, `thor`, `nokogiri`, `lutaml/canon` (dev only, for XML matcher in integration specs) — see `Gemfile`.
+- `parslet`, `thor`, `leptris`, `lutaml/canon` (dev only, for XML matcher in integration specs) — see `Gemfile`.
 
 ## Limitations
 
