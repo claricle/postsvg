@@ -23,29 +23,44 @@ RSpec.describe Postsvg::Visitors::PsVisitor do # rubocop:disable RSpec/SpecFileP
     expect(svg).to include("M 0 0 L 5 5")
   end
 
-  # A named matrix used to raise TypeError: the runtime stack holds parsed
-  # Number literals, not plain numbers. (Name lookup itself does not push
-  # dictionary values yet, so this only checks that nothing raises.)
-  it "does not raise on a matrix stored under a name" do
-    expect do
-      Postsvg.to_svg("/m [1 0 0 1 5 5] def m concat newpath 0 0 moveto 5 5 lineto stroke")
-    end.not_to raise_error
-  end
-
-  it "applies a parsed array that reaches concat through the stack" do
+  it "applies an array-literal matrix to setmatrix" do
     svg = Postsvg.to_svg(
-      "[1 0 0 1 5 5] dup pop concat newpath 0 0 moveto 5 5 lineto stroke",
+      "[1 0 0 1 5 5] setmatrix newpath 0 0 moveto 5 5 lineto stroke",
     )
 
     expect(svg).to include(%(transform="translate(5 5)"))
   end
 
-  it "applies a parsed array that reaches setmatrix through the stack" do
+  # A named matrix used to raise TypeError. Name lookup does not push
+  # dictionary values yet, so a named matrix is not applied, and nothing
+  # left on the runtime stack by def is mistaken for it.
+  it "does not apply a value def left on the stack" do
     svg = Postsvg.to_svg(
-      "[1 0 0 1 5 5] dup pop setmatrix newpath 0 0 moveto 5 5 lineto stroke",
+      "/m [1 0 0 1 5 5] def /n [1 0 0 1 7 7] def m concat " \
+      "newpath 0 0 moveto 5 5 lineto stroke",
+    )
+
+    expect(svg).not_to include("translate(7 7)")
+    expect(svg).not_to include("translate(5 5)")
+  end
+
+  it "applies an array-literal matrix only once" do
+    svg = Postsvg.to_svg(
+      "[1 0 0 1 5 5] concat foo concat newpath 0 0 moveto 5 5 lineto stroke",
     )
 
     expect(svg).to include(%(transform="translate(5 5)"))
+    expect(svg).not_to include("translate(10 10)")
+  end
+
+  it "restores a saved matrix with setmatrix" do
+    svg = Postsvg.to_svg(
+      "matrix currentmatrix [1 0 0 1 5 5] concat setmatrix " \
+      "newpath 0 0 moveto 5 5 lineto stroke",
+    )
+
+    expect(svg).not_to include("translate(5 5)")
+    expect(svg).to include("M 0 0 L 5 5")
   end
 
   it "ignores an array that is not six numbers" do
