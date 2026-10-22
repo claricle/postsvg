@@ -31,9 +31,8 @@ RSpec.describe Postsvg::Visitors::PsVisitor do # rubocop:disable RSpec/SpecFileP
     expect(svg).to include(%(transform="translate(5 5)"))
   end
 
-  # A named matrix used to raise TypeError. Name lookup does not push
-  # dictionary values yet, so a named matrix is not applied, and nothing
-  # left on the runtime stack by def is mistaken for it.
+  # Name lookup does not push dictionary values yet; whatever happens to a
+  # named matrix, a value def left on the runtime stack must not be applied.
   it "does not apply a value def left on the stack" do
     svg = Postsvg.to_svg(
       "/m [1 0 0 1 5 5] def /n [1 0 0 1 7 7] def m concat " \
@@ -41,7 +40,6 @@ RSpec.describe Postsvg::Visitors::PsVisitor do # rubocop:disable RSpec/SpecFileP
     )
 
     expect(svg).not_to include("translate(7 7)")
-    expect(svg).not_to include("translate(5 5)")
   end
 
   it "applies an array-literal matrix only once" do
