@@ -7,15 +7,17 @@ module Postsvg
       # dash attribute setters.
       module GraphicsState
         def visit_gsave(_op, _ctx)
+          @saved_paths << @path.dup
           @graphics.gsave
         end
 
         def visit_grestore(_op, _ctx)
+          @path = @saved_paths.pop if @graphics.depth > 1 && !@saved_paths.empty?
           @graphics.grestore
         end
 
         def visit_grestoreall(_op, _ctx)
-          @graphics.grestore while @graphics.depth > 1
+          visit_grestore(nil, nil) while @graphics.depth > 1
         end
 
         def visit_setlinewidth(op, _ctx)
