@@ -1,0 +1,31 @@
+%!PS-Adobe-3.0
+%%Creator: Postscript 0.2.1
+%%BoundingBox: 0 0 120 100
+%%Title: Translated by Postsvg 0.2.5
+%%LanguageLevel: 3
+%%EndComments
+gsave
+[ 1 0 0 1 35 25 ]
+concat
+newpath
+10
+15
+moveto
+45
+0
+rlineto
+0
+35
+rlineto
+-45
+0
+rlineto
+closepath
+0.2
+0.5333
+0.4
+setrgbcolor
+fill
+grestore
+showpage
+%%EOF
