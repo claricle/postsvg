@@ -9,7 +9,6 @@ module Postsvg
         def self.call(element, context)
           context.emitter.emit(Model::Operators::GraphicsState::Gsave.new)
           emit_transform(element, context)
-          emit_stroke(element, context)
           context.emitter.emit(Model::Operators::Path::Newpath.new)
           points = element.points
           points.each_slice(2).with_index do |(x, y), idx|
@@ -21,7 +20,7 @@ module Postsvg
                                                                       y: y))
             end
           end
-          context.emitter.emit(Model::Operators::Painting::Stroke.new)
+          emit_paint(element, context)
           context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)
           xs = points.each_slice(2).map(&:first)
           ys = points.each_slice(2).map(&:last)

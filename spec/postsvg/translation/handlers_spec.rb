@@ -50,6 +50,31 @@ RSpec.describe Postsvg::Translation::Handlers do
     expect(classes(polyline)).not_to include(Postscript::Model::Operators::Path::Closepath)
   end
 
+  it "PolylineHandler preserves the fixture fill without adding a stroke on round trip" do
+    source = File.read(File.expand_path("../../fixtures/round_trip/shapes/polyline.svg", __dir__))
+    result = RoundTrip::SvgSummary.call(Postsvg.to_svg(Postsvg.to_ps(source)))
+
+    expect(result).to eq(RoundTrip::SvgSummary.call(source))
+    expect(result).to contain_exactly(include(fill: "#669933", stroke: nil))
+  end
+
+  it "PolylineHandler fills then strokes the original open path" do
+    source = %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polyline points="10,10 50,90 90,10" fill="#669933" stroke="#ff0000"/></svg>)
+    result = RoundTrip::SvgSummary.call(Postsvg.to_svg(Postsvg.to_ps(source)))
+
+    expect(result).to eq(RoundTrip::SvgSummary.call(source))
+    expect(result).to contain_exactly(include(fill: "#669933", stroke: "#ff0000",
+                                              geometry: { type: :path, commands: [["M", 10.0, 10.0], ["L", 50.0, 90.0], ["L", 90.0, 10.0]] }))
+  end
+
+  it "PolylineHandler preserves an unfilled open stroke" do
+    source = %(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polyline points="10,10 50,90 90,10" fill="none" stroke="#ff0000"/></svg>)
+    result = RoundTrip::SvgSummary.call(Postsvg.to_svg(Postsvg.to_ps(source)))
+
+    expect(result).to eq(RoundTrip::SvgSummary.call(source))
+    expect(result).to contain_exactly(include(fill: nil, stroke: "#ff0000"))
+  end
+
   it "PathHandler translates M/L/Z" do
     program = translate(%(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M 10 10 L 90 10 L 90 90 Z" fill="#000"/></svg>))
     ops = classes(program)

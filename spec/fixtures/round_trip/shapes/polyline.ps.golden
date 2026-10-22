@@ -21,7 +21,11 @@ lineto
 110
 80
 lineto
-stroke
+0.4
+0.6
+0.2
+setrgbcolor
+fill
 grestore
 showpage
 %%EOF
