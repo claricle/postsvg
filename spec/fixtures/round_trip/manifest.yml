@@ -29,32 +29,20 @@ fixtures:
     family: fill_stroke
   - file: stroke_style/linecap.svg
     family: stroke_style
-    svg:
-      known_gap: stroke-linecap is lost (task 53-04).
   - file: stroke_style/linejoin.svg
     family: stroke_style
-    svg:
-      known_gap: stroke-linejoin is lost (task 53-04).
   - file: text/text.svg
     family: text
-    svg:
-      known_gap: The text element comes back with the wrong string, a computed font-family and font-size 0 (task 53-04).
   - file: transform/translate.svg
     family: transform
-    svg:
-      known_gap: The transform is lost (tasks 53-04, 53-05).
   - file: transform/rotate.svg
     family: transform
-    svg:
-      known_gap: The transform is lost (tasks 53-04, 53-05).
   - file: transform/matrix.svg
     family: transform
     svg:
-      known_gap: The transform is lost (tasks 53-04, 53-05).
+      known_gap: The PS-to-SVG transform decomposition drops the matrix shear component, changing absolute geometry.
   - file: transform/nested_groups.svg
     family: transform
-    svg:
-      known_gap: Both group transforms are lost (tasks 53-04, 53-05).
   - file: gradient/linear.svg
     family: gradient
     # Model diff is empty: paint is flattened before serialization. The
