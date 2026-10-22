@@ -11,7 +11,7 @@ module Postsvg
 
       module_function
 
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength, Metrics/ParameterLists
       def endpoint_to_center(x1:, y1:, rx:, ry:, x_axis_rotation:,
                              large_arc:, sweep:, x2:, y2:)
         rx = rx.abs
@@ -70,7 +70,6 @@ module Postsvg
 
         [cx, cy, rx, ry, phi, theta1 * 180.0 / Math::PI, theta2 * 180.0 / Math::PI]
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/ParameterLists
 
       def angle_between(ux, uy, vx, vy)
         len = vector_length(ux, uy, vx, vy)
