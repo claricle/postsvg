@@ -27,6 +27,30 @@ bundle exec ruby exe/postsvg batch     INPUT_DIR         [OUTPUT_DIR]
 bundle exec ruby exe/postsvg version
 ```
 
+## Round-trip contract
+
+The `round_trip` tag selects the model comparison, SVG summary comparison,
+and byte-pinned emitted-PostScript golden checks:
+
+```bash
+bundle exec rspec --tag round_trip
+bundle exec rake round_trip:regenerate_goldens
+```
+
+These specs also run in the normal CI suite. The regeneration task rewrites
+the `.ps.golden` beside every SVG listed in
+`spec/fixtures/round_trip/manifest.yml`. Regenerate only for intentional output
+changes, inspect the diffs, and include them in a reviewed PR; never edit
+goldens by hand.
+
+Manifest `known_gap` and `non_goal` markers are **strict pending**, scoped to
+the `model` or `svg` leg. They do not skip comparisons: an unexpected pass
+fails the suite and requires reviewing/removing the marker. `known_gap`
+identifies a bug requiring follow-up; `non_goal` records intentional loss
+(currently gradient paint flattening). Unmarked legs must pass, and golden
+checks apply even to marked fixtures. See the README Round-trip section for
+the supported subset, comparison precision and parser-callable parity hook.
+
 ## Architecture
 
 ```
