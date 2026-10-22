@@ -1,0 +1,81 @@
+# Markers record mismatches measured on main with PR #19 (gsave/grestore)
+# merged. Each known_gap names the plan task that fixes it.
+fixtures:
+  - file: shapes/rect.svg
+    family: shapes
+  - file: shapes/polygon.svg
+    family: shapes
+  - file: shapes/polyline.svg
+    family: shapes
+    svg:
+      known_gap: The fill is lost; to_ps emits only a black stroke of the open path (task 53-10).
+  - file: shapes/path_lines_curves.svg
+    family: shapes
+  - file: line_stroke/line.svg
+    family: line_stroke
+  - file: arc/circle.svg
+    family: arc
+  - file: arc/ellipse.svg
+    family: arc
+  - file: arc/path_arc.svg
+    family: arc
+    model:
+      known_gap: concat operands are written as six bare numbers, so the matrix parses back as a number and the leftover operands shift into setlinecap and setlinejoin (task 53-04).
+    svg:
+      known_gap: The arc is dropped (the path comes back as a bare moveto) because the elliptical arc is built inside gsave/grestore and grestore discards the current path (task 53-11). The shifted operands also add a spurious stroke-linejoin (task 53-04).
+  - file: paint_fill/gray.svg
+    family: paint_fill
+  - file: paint_fill/rgb.svg
+    family: paint_fill
+  - file: fill_stroke/fill_stroke.svg
+    family: fill_stroke
+  - file: stroke_style/linecap.svg
+    family: stroke_style
+    model:
+      known_gap: setlinecap operands are not spliced into the PS, so the cap code parses back as 0 (task 53-04).
+    svg:
+      known_gap: stroke-linecap is lost (task 53-04).
+  - file: stroke_style/linejoin.svg
+    family: stroke_style
+    model:
+      known_gap: setlinejoin operands are not spliced into the PS, so the join code parses back as 0 (task 53-04).
+    svg:
+      known_gap: stroke-linejoin is lost (task 53-04).
+  - file: text/text.svg
+    family: text
+    model:
+      known_gap: findfont, scalefont and show operands are not spliced into the PS, so the font name and string parse back as computed and the size as 0 (task 53-04).
+    svg:
+      known_gap: The text element comes back with the wrong string, a computed font-family and font-size 0 (task 53-04).
+  - file: transform/translate.svg
+    family: transform
+    model:
+      known_gap: concat operands are written as six bare numbers instead of an array (task 53-04).
+    svg:
+      known_gap: The transform is lost (tasks 53-04, 53-05).
+  - file: transform/rotate.svg
+    family: transform
+    model:
+      known_gap: concat operands are written as six bare numbers instead of an array (task 53-04).
+    svg:
+      known_gap: The transform is lost (tasks 53-04, 53-05).
+  - file: transform/matrix.svg
+    family: transform
+    model:
+      known_gap: concat operands are written as six bare numbers instead of an array (task 53-04).
+    svg:
+      known_gap: The transform is lost (tasks 53-04, 53-05).
+  - file: transform/nested_groups.svg
+    family: transform
+    model:
+      known_gap: concat operands are written as six bare numbers instead of an array, for both groups (task 53-04).
+    svg:
+      known_gap: Both group transforms are lost (tasks 53-04, 53-05).
+  - file: gradient/linear.svg
+    family: gradient
+    svg:
+      non_goal: url() paint is permanently flattened to a plain fill (black today).
+  - file: gradient/radial.svg
+    family: gradient
+    svg:
+      non_goal: url() paint is permanently flattened to a plain fill (black today).
