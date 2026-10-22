@@ -36,6 +36,7 @@ module Postsvg
         @graphics = graphics
         @stack = [] # operand stack for execution semantics
         @path = PathState.new
+        @saved_paths = []
         @dict_stack = [{}] # runtime dict stack (mirrors PLRM dict stack)
         @recursion_depth = 0
       end
@@ -125,6 +126,11 @@ module Postsvg
 
         def empty?
           @commands.empty?
+        end
+
+        def initialize_copy(other)
+          super
+          @commands = other.commands.map(&:dup)
         end
 
         def move_to(x, y)

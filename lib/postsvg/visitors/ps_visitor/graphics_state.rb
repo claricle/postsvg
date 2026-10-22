@@ -7,15 +7,12 @@ module Postsvg
       # dash attribute setters.
       module GraphicsState
         def visit_gsave(_op, _ctx)
-          @saved_paths ||= []
-          @saved_paths << @path.dup.tap do |saved_path|
-            saved_path.instance_variable_set(:@commands, @path.commands.dup)
-          end
+          @saved_paths << @path.dup
           @graphics.gsave
         end
 
         def visit_grestore(_op, _ctx)
-          @path = @saved_paths.pop if @graphics.depth > 1
+          @path = @saved_paths.pop if @graphics.depth > 1 && !@saved_paths.empty?
           @graphics.grestore
         end
 
