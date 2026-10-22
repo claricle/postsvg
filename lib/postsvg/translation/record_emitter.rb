@@ -17,6 +17,9 @@ module Postsvg
         Model::Operators::Color::Setrgbcolor => NUMBER_OPERANDS,
         Model::Operators::GraphicsState::Setlinewidth => NUMBER_OPERANDS,
         Model::Operators::Path::Moveto => NUMBER_OPERANDS,
+        Model::Operators::Path::Rmoveto => lambda do |record|
+          [Model::Literals::Number.new(record.dx), Model::Literals::Number.new(record.dy)]
+        end,
         Model::Operators::Path::Lineto => NUMBER_OPERANDS,
         Model::Operators::Path::Rlineto => NUMBER_OPERANDS,
         Model::Operators::Path::Curveto => NUMBER_OPERANDS,

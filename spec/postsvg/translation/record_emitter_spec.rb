@@ -36,4 +36,18 @@ RSpec.describe Postsvg::Translation::RecordEmitter do
 
     expect(Postsvg.to_ps(svg)).to match(/0\s+setlinecap/)
   end
+
+  it "preserves relative moveto offsets through serialization and parsing" do
+    svg = <<~SVG
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <path d="M 10 20 m 5 -3 l 10 10" fill="none" stroke="black"/>
+      </svg>
+    SVG
+
+    ps = Postsvg.to_ps(svg)
+    moves = Postscript::Source.parse(ps).body.grep(Postscript::Model::Operators::Path::Rmoveto)
+
+    expect(ps).to match(/5\s+-3\s+rmoveto/)
+    expect(moves.map { |move| [move.dx, move.dy] }).to eq([[5, -3]])
+  end
 end
