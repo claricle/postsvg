@@ -20,7 +20,7 @@ module Postsvg
         # ahead of the keyword (the shape the PS parse path produces).
         # Splice them in so the record stream round-trips.
         if record.is_a?(Model::Operator) &&
-           record.class.public_method_defined?(:operand_values)
+            record.class.public_method_defined?(:operand_values)
           record.operand_values.each do |v|
             @records << Model::Literals::Number.new(v)
           end

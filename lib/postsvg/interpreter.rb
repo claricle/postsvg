@@ -334,9 +334,8 @@ module Postsvg
     end
 
     def flush_path(mode)
-      # rubocop:disable Style/ZeroLengthPredicate
+      # rubocop:disable-next Style/ZeroLengthPredicate
       return if @path.length.zero?
-      # rubocop:enable Style/ZeroLengthPredicate
 
       d = @path.to_path
       path_str = emit_svg_path(d, @g_state, mode)
