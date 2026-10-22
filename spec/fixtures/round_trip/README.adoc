@@ -5,8 +5,25 @@ fidelity contract. Each SVG has exactly one entry in `manifest.yml`; paths in
 the manifest are relative to this directory. `family` groups related features
 without changing the identity of an individual fixture.
 
+== What each leg compares
+
+`model`:: The PostScript program `Postsvg::Translation::PsRenderer` builds from
+the SVG, against the program `Postscript::Source.parse` reads back from
+`Postscript::Serializer` output for it. Both sides go through
+`RoundTrip::Normalizer` (`spec/support/round_trip`): operators only, with their
+operand values, floats rounded to the serializer's 4 decimals.
+`RoundTrip::Harness` reports the records that differ.
+
+`svg`:: The input SVG, against `Postsvg.to_svg(Postsvg.to_ps(svg))`, compared on
+what is drawn: shape geometry, fill, stroke, stroke width, line cap and join,
+transforms and text. The SVG-level contract task (53-07) implements this
+comparison; until then the markers record mismatches found by converting each
+fixture and comparing by hand.
+
+== Markers
+
 An entry may mark an expected mismatch on the `model` leg, the `svg` leg, or
-both. A `known_gap` is a bug that must have a follow-up fix card. A `non_goal`
+both. A leg with no marker is expected to match. A `known_gap` is a bug that must have a follow-up fix card. A `non_goal`
 records intentional, permanent flattening that the round trip does not promise
 to preserve. The value of either marker is the reason for the exception.
 
@@ -18,12 +35,12 @@ visible, and an unexpected pass fails the suite so the marker can be removed.
 - file: transform/translate.svg
   family: transform
   model:
-    known_gap: concat operands are emitted as bare numbers instead of an array.
+    known_gap: concat operands are written as six bare numbers instead of an array (task 53-04).
+  svg:
+    known_gap: The transform is lost (tasks 53-04, 53-05).
 
 - file: gradient/linear.svg
   family: gradient
-  model:
-    non_goal: url() paint is permanently flattened to a plain fill.
   svg:
-    non_goal: url() paint is permanently flattened to a plain fill.
+    non_goal: url() paint is permanently flattened to a plain fill (black today).
 ----
