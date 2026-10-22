@@ -129,17 +129,19 @@ RSpec.describe RoundTrip::Normalizer do
       expect(described_class.call(shape_svg)).to be_empty
     end
 
-    # Real text loss on the default parser today: the serializer does not
-    # splice the font name, size, or string, so they parse back as computed.
-    it "reports the text operands lost on the round trip" do
-      expect(described_class.call(text_svg)).to eq(
+    it "finds no differences after round-tripping text operands" do
+      expect(described_class.call(text_svg)).to be_empty
+    end
+
+    it "reports text operands changed by the parser" do
+      parser = lambda do |source|
+        Postscript::Source.parse(source.sub("(Hello)", "(Changed)"))
+      end
+
+      expect(described_class.call(text_svg, parser: parser)).to eq(
         [
-          { index: 1, expected: ["findfont", { name: "Helvetica" }],
-            actual: ["findfont", { name: :computed }] },
-          { index: 2, expected: ["scalefont", { font: :computed, size: 12.0 }],
-            actual: ["scalefont", { font: :computed, size: 0.0 }] },
           { index: 5, expected: ["show", { text: "Hello" }],
-            actual: ["show", { text: :computed }] },
+            actual: ["show", { text: "Changed" }] },
         ],
       )
     end
