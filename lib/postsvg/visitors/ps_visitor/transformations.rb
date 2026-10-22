@@ -22,7 +22,8 @@ module Postsvg
         end
 
         def visit_concat(op, _ctx)
-          matrix = matrix_from_operand(op.matrix)
+          operand = op.matrix.is_a?(Model::Computed) ? @stack.pop : op.matrix
+          matrix = matrix_from_operand(operand)
           return unless matrix
 
           new_ctm = @graphics.current.ctm.multiply(matrix)
@@ -88,6 +89,8 @@ module Postsvg
         def matrix_from_operand(operand)
           case operand
           when Matrix then operand
+          when Model::Literals::ArrayLiteral
+            matrix_from_operand(operand.elements.map { |element| numeric_value(element) })
           when Array
             return nil unless operand.length == 6
 
