@@ -18,6 +18,7 @@ module Postsvg
         end
 
         def visit_scale(op, _ctx)
+          consume_numeric_operands(op.sx, op.sy)
           new_ctm = @graphics.current.ctm.scale(op.sx.to_f, op.sy.to_f)
           @graphics.update(ctm: new_ctm)
         end
@@ -40,6 +41,7 @@ module Postsvg
         end
 
         def visit_currentmatrix(_op, _ctx)
+          @stack.pop if @stack.last.is_a?(StackMatrix)
           ctm = @graphics.current.ctm
           @stack << StackMatrix[ctm.a, ctm.b, ctm.c, ctm.d, ctm.e, ctm.f]
         end
@@ -90,6 +92,12 @@ module Postsvg
         end
 
         private
+
+        # Parsed literal operands remain on the visitor stack. Consume only
+        # an exact numeric suffix, leaving directly constructed operators alone.
+        def consume_numeric_operands(*values)
+          @stack.pop(values.length) if @stack.last(values.length) == values
+        end
 
         # A literal matrix was also pushed by visit_array; consume that copy
         # so a later operator does not apply it again. A computed matrix is

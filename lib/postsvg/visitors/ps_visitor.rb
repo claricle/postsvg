@@ -117,6 +117,7 @@ module Postsvg
       # geometry bookkeeping.
       class PathState
         attr_reader :commands, :current_x, :current_y
+        attr_accessor :matrix
 
         def initialize
           @commands = []
@@ -181,6 +182,7 @@ module Postsvg
         end
 
         def reset
+          @matrix = nil
           @commands = []
           @current_x = 0.0
           @current_y = 0.0

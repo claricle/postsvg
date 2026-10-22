@@ -19,8 +19,6 @@ fixtures:
     family: arc
   - file: arc/path_arc.svg
     family: arc
-    svg:
-      known_gap: The arc is dropped (the path comes back as a bare moveto) because the elliptical arc is built inside gsave/grestore and grestore discards the current path (task 53-11). The shifted operands also add a spurious stroke-linejoin (task 53-04).
   - file: paint_fill/gray.svg
     family: paint_fill
   - file: paint_fill/rgb.svg

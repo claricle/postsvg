@@ -5,20 +5,23 @@ module Postsvg
     class PsVisitor
       # Path construction operator handlers. Each appends a command to
       # +@path+ (PathState). CTM-aware: when the current CTM is not
-      # identity, the renderer will wrap emitted paths in a
-      # <g transform=>. Points are stored in user-space coordinates;
-      # the visitor delegates to the SvgBuilder for transform emission.
+      # identity, the renderer wraps painted paths in a <g transform=>.
+      # Temporary arc transforms are mapped back into the path's user space
+      # so restoring the CTM preserves the geometry already constructed.
+      # Other mid-path CTM changes retain the existing paint-time behavior.
       module Path
         def visit_newpath(_op, _ctx)
           @path.reset
         end
 
         def visit_moveto(op, _ctx)
+          @path.matrix ||= @graphics.current.ctm
           @path.move_to(op.x, op.y)
           @graphics.update(last_text_position: { x: op.x, y: op.y })
         end
 
         def visit_rmoveto(op, _ctx)
+          @path.matrix ||= @graphics.current.ctm
           @path.move_to_rel(op.dx, op.dy)
           pos = @graphics.current.last_text_position
           base_x = pos ? pos[:x] : 0
@@ -66,50 +69,48 @@ module Postsvg
         # are parametrised by center, radius, angle range. SVG arcs
         # are parametrised by endpoint, radii, large-arc/sweep flags.
         def append_arc(cx, cy, radius, angle1, angle2, sweep:)
+          consume_numeric_operands(cx, cy, radius, angle1, angle2)
           r = radius.abs
           return if r.zero?
 
-          start_rad = angle1 * Math::PI / 180.0
-          start_x = cx + (r * Math.cos(start_rad))
-          start_y = cy + (r * Math.sin(start_rad))
-          end_rad = angle2 * Math::PI / 180.0
-          end_x = cx + (r * Math.cos(end_rad))
-          end_y = cy + (r * Math.sin(end_rad))
+          @path.matrix ||= @graphics.current.ctm
+          matrix = @path.matrix.invert.multiply(@graphics.current.ctm)
+          start_x, start_y = arc_point(matrix, cx, cy, r, angle1)
+          end_x, end_y = arc_point(matrix, cx, cy, r, angle2)
+          @path.move_to(start_x, start_y) if @path.empty?
 
-          # If the current path is empty, the arc implicitly starts
-          # with a moveto to its starting point.
-          if (@path.empty? || last_command_starts_with?("M")) && @path.empty?
-            @path.move_to(start_x, start_y)
-          end
-
-          delta = (angle2 - angle1) % 360
-          delta += 360 if delta.negative?
-          large_arc = delta > 180
-
-          # SVG sweep flag is 1 when the arc is drawn clockwise.
-          svg_sweep = if sweep
-                        delta.positive? ? 1 : 0
-                      else
-                        0
-                      end
+          delta = sweep ? (angle2 - angle1) % 360 : (angle1 - angle2) % 360
+          rx, ry, rotation = arc_radii(matrix, r)
+          reflected = ((matrix.a * matrix.d) - (matrix.b * matrix.c)).negative?
+          svg_sweep = sweep != reflected
           if delta.abs < 1e-6
-            # Full circle: emit two arcs.
-            mid_angle = angle1 + 180
-            mid_rad = mid_angle * Math::PI / 180.0
-            mid_x = cx + (r * Math.cos(mid_rad))
-            mid_y = cy + (r * Math.sin(mid_rad))
-            @path.arc_to(r, r, 0, 0, svg_sweep, mid_x, mid_y)
-            @path.arc_to(r, r, 0, 0, svg_sweep, start_x, start_y)
+            # Full circles need two arcs; retain the corpus's large-arc spelling.
+            mid_x, mid_y = arc_point(matrix, cx, cy, r, angle1 + 180)
+            @path.arc_to(rx, ry, rotation, true, svg_sweep, mid_x, mid_y)
+            @path.arc_to(rx, ry, rotation, true, svg_sweep, start_x, start_y)
             @path.close
           else
-            @path.arc_to(r, r, 0, large_arc ? 1 : 0, svg_sweep, end_x, end_y)
+            @path.arc_to(rx, ry, rotation, delta > 180, svg_sweep, end_x, end_y)
           end
         end
 
-        def last_command_starts_with?(prefix)
-          return false if @path.commands.empty?
+        def arc_point(matrix, cx, cy, radius, angle)
+          radians = angle * Math::PI / 180.0
+          matrix.apply_point(cx + (radius * Math.cos(radians)),
+                             cy + (radius * Math.sin(radians))).values_at(:x, :y)
+        end
 
-          @path.commands.last.start_with?(prefix)
+        # Singular values give the ellipse radii even when its frame is rotated
+        # or sheared. The principal eigenvector gives its SVG axis rotation.
+        def arc_radii(matrix, radius)
+          xx = (matrix.a**2) + (matrix.c**2)
+          xy = (matrix.a * matrix.b) + (matrix.c * matrix.d)
+          yy = (matrix.b**2) + (matrix.d**2)
+          root = Math.hypot(xx - yy, 2 * xy)
+          rx = radius * Math.sqrt([(xx + yy + root) / 2, 0].max)
+          ry = radius * Math.sqrt([(xx + yy - root) / 2, 0].max)
+          rotation = root < 1e-12 ? 0.0 : Math.atan2(2 * xy, xx - yy) * 90 / Math::PI
+          [rx, ry, rotation]
         end
       end
     end
