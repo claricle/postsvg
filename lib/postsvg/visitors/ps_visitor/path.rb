@@ -6,8 +6,8 @@ module Postsvg
       # Path construction operator handlers. Each appends a command to
       # +@path+ (PathState). CTM-aware: when the current CTM is not
       # identity, the renderer wraps painted paths in a <g transform=>.
-      # Temporary arc transforms are mapped back into the path's user space
-      # so restoring the CTM preserves the geometry already constructed.
+      # Arcs retain their construction CTM and are mapped into the paint CTM
+      # at emission, whether or not the temporary transform was restored.
       # Other mid-path CTM changes retain the existing paint-time behavior.
       module Path
         def visit_newpath(_op, _ctx)
@@ -73,25 +73,38 @@ module Postsvg
           r = radius.abs
           return if r.zero?
 
-          @path.matrix ||= @graphics.current.ctm
-          matrix = @path.matrix.invert.multiply(@graphics.current.ctm)
-          start_x, start_y = arc_point(matrix, cx, cy, r, angle1)
-          end_x, end_y = arc_point(matrix, cx, cy, r, angle2)
-          @path.move_to(start_x, start_y) if @path.empty?
+          construction_matrix = @graphics.current.ctm
+          @path.matrix ||= construction_matrix
+          point_matrix = @path.matrix.invert.multiply(construction_matrix)
+          end_x, end_y = arc_point(point_matrix, cx, cy, r, angle2)
+          starts_path = @path.empty?
+          command = lambda do |paint_matrix|
+            matrix = paint_matrix.invert.multiply(construction_matrix)
+            render_arc(cx, cy, r, angle1, angle2, sweep: sweep,
+                       matrix: matrix, starts_path: starts_path)
+          end
+          @path.append_deferred(command, end_x, end_y)
+        end
 
+        def render_arc(cx, cy, radius, angle1, angle2, sweep:, matrix:, starts_path:)
+          path = PathState.new
+          start_x, start_y = arc_point(matrix, cx, cy, radius, angle1)
+          end_x, end_y = arc_point(matrix, cx, cy, radius, angle2)
+          path.move_to(start_x, start_y) if starts_path
           delta = sweep ? (angle2 - angle1) % 360 : (angle1 - angle2) % 360
-          rx, ry, rotation = arc_radii(matrix, r)
+          rx, ry, rotation = arc_radii(matrix, radius)
           reflected = ((matrix.a * matrix.d) - (matrix.b * matrix.c)).negative?
           svg_sweep = sweep != reflected
           if delta.abs < 1e-6
             # Full circles need two arcs; retain the corpus's large-arc spelling.
-            mid_x, mid_y = arc_point(matrix, cx, cy, r, angle1 + 180)
-            @path.arc_to(rx, ry, rotation, true, svg_sweep, mid_x, mid_y)
-            @path.arc_to(rx, ry, rotation, true, svg_sweep, start_x, start_y)
-            @path.close
+            mid_x, mid_y = arc_point(matrix, cx, cy, radius, angle1 + 180)
+            path.arc_to(rx, ry, rotation, true, svg_sweep, mid_x, mid_y)
+            path.arc_to(rx, ry, rotation, true, svg_sweep, start_x, start_y)
+            path.close
           else
-            @path.arc_to(rx, ry, rotation, delta > 180, svg_sweep, end_x, end_y)
+            path.arc_to(rx, ry, rotation, delta > 180, svg_sweep, end_x, end_y)
           end
+          path.to_path_d
         end
 
         def arc_point(matrix, cx, cy, radius, angle)

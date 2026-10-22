@@ -25,7 +25,7 @@ module Postsvg
         def visit_clip(_op, _ctx)
           return if @path.empty?
 
-          path_d = @path.to_path_d
+          path_d = @path.to_path_d(@graphics.current.ctm)
           clip_id = @builder.register_clip_path(path_d)
           @graphics.update(clip_paths: @graphics.current.clip_paths + [clip_id])
           @path.reset
@@ -43,7 +43,7 @@ module Postsvg
         def flush_path(mode)
           return if @path.empty?
 
-          d = @path.to_path_d
+          d = @path.to_path_d(@graphics.current.ctm)
           ctx = @graphics.current
           transform_str = build_transform_string(ctx)
           clip_id = ctx.clip_paths.last
