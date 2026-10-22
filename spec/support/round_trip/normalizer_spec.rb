@@ -12,8 +12,16 @@ RSpec.describe RoundTrip::Normalizer do
     )
 
     expect(described_class.call([operator])).to eq(
-      [["moveto", { x: 1.235, y: 2.346 }]],
+      [["moveto", { x: 1.2346, y: 2.3457 }]],
     )
+  end
+
+  it "rounds to the serializer's 4 decimals, so its rounding is not a difference" do
+    color = Postscript::Model::Operators::Color::Setrgbcolor
+    written = color.new(red: 0.094, green: 0.192, blue: 0.32549)
+    parsed = color.new(red: 0.094, green: 0.192, blue: 0.3255)
+
+    expect(described_class.call([written])).to eq(described_class.call([parsed]))
   end
 
   it "normalizes computed and array operands" do
@@ -30,7 +38,7 @@ RSpec.describe RoundTrip::Normalizer do
     expect(described_class.call([font, dash])).to eq(
       [
         ["setfont", { font: :computed }],
-        ["setdash", { pattern: [1.235], offset: 0 }],
+        ["setdash", { pattern: [1.2345], offset: 0 }],
       ],
     )
   end

@@ -80,7 +80,9 @@ module RoundTrip
       when Array
         value.map { |item| normalize_value(item) }
       when Float
-        value.round(3)
+        # Postscript::FormatNumber writes 4 decimals; rounding coarser than
+        # that would turn 0.32549 vs a parsed 0.3255 into a false difference.
+        value.round(4)
       else
         value
       end
