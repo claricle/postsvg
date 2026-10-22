@@ -73,9 +73,12 @@ fixtures:
       known_gap: Both group transforms are lost (tasks 53-04, 53-05).
   - file: gradient/linear.svg
     family: gradient
+    # Model diff is empty: paint is flattened before serialization. The
+    # contract checks this non_goal separately on the SVG leg, strict-pending.
     svg:
       non_goal: url() paint is permanently flattened to a plain fill (black today).
   - file: gradient/radial.svg
     family: gradient
+    # As with linear gradients, the model leg is green; loss is SVG-only.
     svg:
       non_goal: url() paint is permanently flattened to a plain fill (black today).
