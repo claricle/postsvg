@@ -35,7 +35,54 @@ RSpec.describe RoundTrip::Normalizer do
     )
   end
 
-  it "makes keyword-only classes and dropped records explicit" do
+  describe "keyword-only coverage gaps" do
+    # Pin the full registry remainder, including operand-bearing operators.
+    # New classes or changes to ATTRIBUTE_READERS must update this inventory.
+    let(:known_gaps) do
+      {
+        Arithmetic: %w[Abs Add Atan Ceiling Cos Div Exp Floor Idiv Ln Log Mod
+                       Mul Neg Round Sin Sqrt Sub Truncate],
+        Boolean: %w[And Bitshift Eq False Ge Gt Le Lt Ne Not Or True Xor],
+        Container: %w[Anchorsearch Astore Cvs Forall Get Getinterval Length Put
+                      Putinterval Search String Token],
+        ControlFlow: %w[Exec Exit For If Ifelse Loop Quit Repeat Stopped],
+        Device: %w[Copypage Nulldevice Showpage],
+        Dictionary: %w[Begin Countdictstack Currentdict Def Dict Dictstack End
+                       Known Load Maxlength Store],
+        GraphicsState: %w[Grestore Grestoreall Gsave],
+        Painting: %w[Clip Eoclip Eofill Fill Stroke],
+        Path: %w[Closepath Currentpoint Newpath],
+        Stack: %w[Clear Count Dup Exch Index Pop Roll],
+        Transformations: %w[Currentmatrix Dtransform Idtransform Itransform
+                            Matrix Transform],
+      }.flat_map do |category, names|
+        names.map { |name| "Postscript::Model::Operators::#{category}::#{name}" }
+      end
+    end
+
+    it "lists every registered class missing from the attribute table" do
+      registry = Postscript::Model::Operators
+      registry.load_all!
+      registered_classes = registry.keywords.map { |keyword| registry[keyword] }.uniq
+      missing_classes = registered_classes - described_class::ATTRIBUTE_READERS.keys
+
+      expect(missing_classes.map(&:name)).to match_array(known_gaps)
+    end
+
+    it "falls back to keywords for unmapped path, transform and graphics state classes" do
+      records = [
+        Postscript::Model::Operators::Path::Currentpoint.new,
+        Postscript::Model::Operators::Transformations::Transform.new,
+        Postscript::Model::Operators::GraphicsState::Grestoreall.new,
+      ]
+
+      expect(described_class.call(records)).to eq(
+        [["currentpoint", {}], ["transform", {}], ["grestoreall", {}]],
+      )
+    end
+  end
+
+  it "drops spliced literals and the trailing showpage" do
     keyword_only_classes = [
       Postscript::Model::Operators::GraphicsState::Gsave,
       Postscript::Model::Operators::Path::Newpath,
