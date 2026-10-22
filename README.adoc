@@ -225,8 +225,9 @@ equivalent PS `arc` operator.
 
 === Round-trip
 
-The same `Model::Program` value object sits behind both directions, so
-round-trip is a function composition:
+The round-trip contract covers a pinned SVG corpus, with per-fixture
+expectations in link:spec/fixtures/round_trip/manifest.yml[manifest.yml].
+The conversion is a function composition:
 
 [source,ruby]
 ----
@@ -236,9 +237,57 @@ original_svg = File.read("input.svg")
 ps = Postsvg.to_ps(original_svg)
 round_tripped_svg = Postsvg.to_svg(ps)
 
-# round_tripped_svg preserves the geometry of original_svg for the
-# supported subset of SVG elements.
 ----
+
+The gate checks two legs independently:
+
+* *Normalized model diff*: `RoundTrip::Harness` compares the program built
+  from SVG with the program parsed from its serialized PostScript. The
+  normalizer compares operators and operand values, rounding floats to the
+  serializer's four decimal places.
+* *SVG summary diff*: `RoundTrip::SvgSummary` compares the original SVG with
+  the returned SVG as painted geometry in document coordinates. It checks
+  fill, stroke, stroke width, line caps and joins, transforms, and text
+  content, position, font family and size. Numbers are rounded to two decimal
+  places; equivalent shape/path spellings and the renderer's Y-flip wrapper
+  are normalized. This is not a byte-for-byte SVG or pixel-rendering test.
+
+Covered families are shapes (rectangles, polygons, polylines, line and curve
+paths), line strokes, arcs (circles, ellipses and path arcs), gray/RGB fills,
+combined fill and stroke, stroke styles, text, transforms (translation,
+rotation, matrices and nested groups), and gradients. Coverage does not mean
+every family preserves everything: the manifest records known SVG-leg gaps
+for polyline fill, path arcs and matrix shear. Text checks do not promise font
+metrics or glyph fidelity. Features outside the corpus are not guaranteed by
+this gate.
+
+The manifest is authoritative for exceptions on each leg. `known_gap` marks
+a bug; `non_goal` marks intentional loss. Linear and radial gradient `url()`
+paint is intentionally flattened to a plain fill (currently black), so gradient
+preservation is a non-goal even though the model leg passes. Both markers are
+strict pending: the comparison still runs, and an unexpected pass fails so
+the marker must be reviewed and removed when appropriate.
+
+The `round_trip` spec tag selects the contract and emitted-PostScript golden
+checks, which also run in the normal CI spec suite. Every manifest fixture has
+a byte-pinned `.ps.golden`; even marked fixtures must match their golden.
+For an intentional output change, regenerate with:
+
+[source,sh]
+----
+bundle exec rake round_trip:regenerate_goldens
+----
+
+Review the resulting diffs and submit them with the change in a reviewed PR.
+Do not edit goldens by hand or regenerate them merely to silence a regression.
+
+For `postscript#4` parser parity, the test-support hook
+`RoundTrip::Harness.call(svg, parser: candidate_parser)` accepts a callable
+that receives serialized PS source and returns a compatible program. It
+defaults to `Postscript::Source.parse` and returns an empty diff on a match,
+or indexed expected/actual normalized records on a mismatch. This lets a
+candidate parser reuse the same model contract without changing the public
+conversion API.
 
 == Command-line interface
 
