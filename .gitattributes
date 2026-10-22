@@ -1,0 +1,3 @@
+# Emitted-PostScript goldens are compared byte for byte; keep LF on every OS
+# (Windows checkouts would otherwise turn them into CRLF).
+spec/fixtures/round_trip/**/*.ps.golden text eol=lf
