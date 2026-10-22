@@ -6,6 +6,12 @@ module Postsvg
       # Coordinate transformation operator handlers. Each returns a
       # new CTM via Matrix composition and updates the GraphicsContext.
       module Transformations
+        # A matrix this visitor produced (`matrix`, `currentmatrix`). The
+        # runtime stack also holds values nothing popped (`def` operands,
+        # unresolved names, path operands), so only these are trusted as a
+        # matrix the parser could not see.
+        class StackMatrix < Array; end
+
         def visit_translate(op, _ctx)
           new_ctm = @graphics.current.ctm.translate(op.tx.to_f, op.ty.to_f)
           @graphics.update(ctm: new_ctm)
@@ -22,7 +28,7 @@ module Postsvg
         end
 
         def visit_concat(op, _ctx)
-          matrix = matrix_from_operand(op.matrix)
+          matrix = matrix_from_operand(matrix_operand(op))
           return unless matrix
 
           new_ctm = @graphics.current.ctm.multiply(matrix)
@@ -30,16 +36,16 @@ module Postsvg
         end
 
         def visit_matrix(_op, _ctx)
-          @stack << [1, 0, 0, 1, 0, 0]
+          @stack << StackMatrix[1, 0, 0, 1, 0, 0]
         end
 
         def visit_currentmatrix(_op, _ctx)
           ctm = @graphics.current.ctm
-          @stack << [ctm.a, ctm.b, ctm.c, ctm.d, ctm.e, ctm.f]
+          @stack << StackMatrix[ctm.a, ctm.b, ctm.c, ctm.d, ctm.e, ctm.f]
         end
 
         def visit_setmatrix(op, _ctx)
-          matrix = matrix_from_operand(op.matrix)
+          matrix = matrix_from_operand(matrix_operand(op))
           return unless matrix
 
           @graphics.update(ctm: matrix)
@@ -85,15 +91,39 @@ module Postsvg
 
         private
 
+        # A literal matrix was also pushed by visit_array; consume that copy
+        # so a later operator does not apply it again. A computed matrix is
+        # taken from the stack only when this visitor produced it.
+        def matrix_operand(op)
+          unless op.matrix.is_a?(Model::Computed)
+            @stack.pop if literal_on_stack?(op.matrix)
+            return op.matrix
+          end
+
+          @stack.pop if @stack.last.is_a?(StackMatrix)
+        end
+
+        def literal_on_stack?(matrix)
+          matrix.is_a?(Model::Literals::ArrayLiteral) && @stack.last.equal?(matrix.elements)
+        end
+
+        # Arrays on the runtime stack hold either plain numbers or parsed
+        # Number literals. Anything other than six numbers is not a matrix.
         def matrix_from_operand(operand)
           case operand
           when Matrix then operand
+          when Model::Literals::ArrayLiteral then matrix_from_operand(operand.elements)
           when Array
-            return nil unless operand.length == 6
+            numbers = operand.map { |element| matrix_number(element) }
+            return nil unless numbers.length == 6 && numbers.all?
 
-            Matrix.new(a: operand[0], b: operand[1], c: operand[2],
-                       d: operand[3], e: operand[4], f: operand[5])
+            Matrix.new(a: numbers[0], b: numbers[1], c: numbers[2],
+                       d: numbers[3], e: numbers[4], f: numbers[5])
           end
+        end
+
+        def matrix_number(element)
+          numeric_value(element) if element.is_a?(Numeric) || element.is_a?(Model::Literals::Number)
         end
       end
     end
