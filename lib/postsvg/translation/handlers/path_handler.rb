@@ -215,6 +215,9 @@ module Postsvg
             x += state.current_x
             y += state.current_y
           end
+          # SVG omits arcs whose endpoints coincide.
+          return if [x, y] == [state.current_x, state.current_y]
+
           cx, cy, normalized_rx, normalized_ry, psi, theta1, theta2 =
             Postsvg::Translation::ArcConverter.endpoint_to_center(
               x1: state.current_x, y1: state.current_y,

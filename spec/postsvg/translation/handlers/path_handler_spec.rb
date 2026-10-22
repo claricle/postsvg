@@ -28,6 +28,18 @@ RSpec.describe Postsvg::Translation::Handlers::PathHandler do
     end
   end
 
+  {
+    "absolute" => "A 20 10 0 0 1 10 50",
+    "relative" => "a 20 10 0 0 1 0 0",
+  }.each do |kind, arc|
+    it "skips an #{kind} arc with coincident endpoints and preserves the following line" do
+      source = svg_path("M 10 50 #{arc} L 90 50")
+
+      expect(Postsvg.to_svg(Postsvg.to_ps(source)))
+        .to include('d="M 10 50 L 90 50"')
+    end
+  end
+
   it "preserves the element transform around the temporary arc transform" do
     source = svg_path("M 20 70 A 60 40 30 0 1 100 70 L 110 80",
                       'transform="translate(5 10) rotate(90) scale(1.5)"')
