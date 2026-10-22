@@ -3,6 +3,10 @@
 require "postsvg"
 require "canon/rspec_matchers"
 
+Dir[File.join(__dir__, "support", "**", "*.rb")].each do |file|
+  require file unless file.end_with?("_spec.rb")
+end
+
 # Configure Canon for spec-friendly XML matching
 Canon::Config.instance.xml.match.profile = :spec_friendly
 
