@@ -22,7 +22,7 @@ fixtures:
     model:
       known_gap: concat operands are written as six bare numbers, so the matrix parses back as a number and the leftover operands shift into setlinecap and setlinejoin (task 53-04).
     svg:
-      known_gap: The arc is drawn through that concat matrix and comes back as a degenerate arc (tasks 53-04, 53-05).
+      known_gap: The arc is dropped (the path comes back as a bare moveto) because the elliptical arc is built inside gsave/grestore and grestore discards the current path (task 53-11). The shifted operands also add a spurious stroke-linejoin (task 53-04).
   - file: paint_fill/gray.svg
     family: paint_fill
   - file: paint_fill/rgb.svg
@@ -44,9 +44,9 @@ fixtures:
   - file: text/text.svg
     family: text
     model:
-      known_gap: findfont, scalefont and show operands are not spliced into the PS, so the font name, size and string parse back as computed (task 53-04).
+      known_gap: findfont, scalefont and show operands are not spliced into the PS, so the font name and string parse back as computed and the size as 0 (task 53-04).
     svg:
-      known_gap: The text element is lost entirely (task 53-04).
+      known_gap: The text element comes back with the wrong string, a computed font-family and font-size 0 (task 53-04).
   - file: transform/translate.svg
     family: transform
     model:

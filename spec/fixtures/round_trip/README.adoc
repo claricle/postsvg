@@ -27,8 +27,11 @@ both. A leg with no marker is expected to match. A `known_gap` is a bug that mus
 records intentional, permanent flattening that the round trip does not promise
 to preserve. The value of either marker is the reason for the exception.
 
-Both markers run as strict pending examples: the expected mismatch must remain
-visible, and an unexpected pass fails the suite so the marker can be removed.
+Nothing runs the markers yet. The corpus runner (a later task) will run both as
+strict pending examples: the expected mismatch must remain visible, and an
+unexpected pass fails the suite so the marker can be removed. Until then
+`spec/postsvg/round_trip_manifest_spec.rb` checks that every fixture has exactly
+one entry and parses.
 
 [source,yaml]
 ----
