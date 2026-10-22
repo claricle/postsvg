@@ -117,6 +117,7 @@ module Postsvg
       # geometry bookkeeping.
       class PathState
         attr_reader :commands, :current_x, :current_y
+        attr_accessor :matrix
 
         def initialize
           @commands = []
@@ -176,18 +177,27 @@ module Postsvg
           @current_y = y.to_f
         end
 
+        def append_deferred(command, x, y)
+          @commands << command
+          @current_x = x
+          @current_y = y
+        end
+
         def close
           @commands << "Z"
         end
 
         def reset
+          @matrix = nil
           @commands = []
           @current_x = 0.0
           @current_y = 0.0
         end
 
-        def to_path_d
-          @commands.join(" ")
+        def to_path_d(paint_matrix = @matrix || Matrix.new)
+          @commands.map do |command|
+            command.is_a?(Proc) ? command.call(paint_matrix) : command
+          end.join(" ")
         end
 
         def fmt(value)

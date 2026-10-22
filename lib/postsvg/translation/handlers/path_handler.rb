@@ -211,6 +211,13 @@ module Postsvg
         # W3C-endorsed endpoint-to-center conversion.
         def self.handle_arc(cmd, state, context)
           rx, ry, x_axis_rotation, large_arc_flag, sweep_flag, x, y = cmd.args
+          if cmd.opcode == "a"
+            x += state.current_x
+            y += state.current_y
+          end
+          # SVG omits arcs whose endpoints coincide.
+          return if [x, y] == [state.current_x, state.current_y]
+
           cx, cy, normalized_rx, normalized_ry, psi, theta1, theta2 =
             Postsvg::Translation::ArcConverter.endpoint_to_center(
               x1: state.current_x, y1: state.current_y,
@@ -218,27 +225,29 @@ module Postsvg
               large_arc: large_arc_flag != 0, sweep: sweep_flag != 0,
               x2: x, y2: y
             )
-          # Emit arc with center, radius, angle range. For elliptical
-          # arcs (rx != ry or non-zero rotation), emit scale/rotate
-          # transforms around the arc.
+          # Restore only the CTM: grestore would discard the appended arc.
+          arc_class = sweep_flag.zero? ? Model::Operators::Path::Arcn : Model::Operators::Path::Arc
           if x_axis_rotation.abs > 1e-6 || (rx - ry).abs > 1e-6
-            context.emitter.emit(Model::Operators::GraphicsState::Gsave.new)
+            context.emitter.emit(Model::Operators::Transformations::Matrix.new)
+            context.emitter.emit(Model::Operators::Transformations::Currentmatrix.new)
             context.emitter.emit(Model::Operators::Transformations::Concat.new(matrix: [
                                                                                  Math.cos(psi), Math.sin(psi), -Math.sin(psi), Math.cos(psi), cx, cy
                                                                                ]))
             context.emitter.emit(Model::Operators::Transformations::Scale.new(
                                    sx: normalized_rx, sy: normalized_ry,
                                  ))
-            context.emitter.emit(Model::Operators::Path::Arc.new(
+            context.emitter.emit(arc_class.new(
                                    x: 0, y: 0, radius: 1.0, angle1: theta1, angle2: theta2,
                                  ))
-            context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)
+            context.emitter.emit(Model::Operators::Transformations::Setmatrix.new(
+                                   matrix: Model::Computed.new(operator_keyword: "currentmatrix"),
+                                 ))
           else
-            context.emitter.emit(Model::Operators::Path::Arc.new(
+            context.emitter.emit(arc_class.new(
                                    x: cx, y: cy, radius: normalized_rx, angle1: theta1, angle2: theta2,
                                  ))
           end
-          state.move_to(x, y)
+          state.line_to(x, y)
         end
 
         # ---- helpers ----
