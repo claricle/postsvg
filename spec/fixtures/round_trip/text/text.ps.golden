@@ -1,0 +1,24 @@
+%!PS-Adobe-3.0
+%%Creator: Postscript 0.2.1
+%%BoundingBox: 0 0 160 100
+%%Title: Translated by Postsvg 0.2.5
+%%LanguageLevel: 3
+%%EndComments
+gsave
+0.1529
+0.2118
+0.2902
+setrgbcolor
+/Helvetica
+findfont
+28
+scalefont
+setfont
+20
+60
+moveto
+(Round trip)
+show
+grestore
+showpage
+%%EOF
