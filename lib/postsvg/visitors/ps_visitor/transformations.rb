@@ -22,8 +22,7 @@ module Postsvg
         end
 
         def visit_concat(op, _ctx)
-          operand = op.matrix.is_a?(Model::Computed) ? @stack.pop : op.matrix
-          matrix = matrix_from_operand(operand)
+          matrix = matrix_from_operand(matrix_operand(op))
           return unless matrix
 
           new_ctm = @graphics.current.ctm.multiply(matrix)
@@ -40,7 +39,7 @@ module Postsvg
         end
 
         def visit_setmatrix(op, _ctx)
-          matrix = matrix_from_operand(op.matrix)
+          matrix = matrix_from_operand(matrix_operand(op))
           return unless matrix
 
           @graphics.update(ctm: matrix)
@@ -86,17 +85,30 @@ module Postsvg
 
         private
 
+        # A matrix the parser could not see (a name, `matrix currentmatrix`,
+        # a `dup`ed array) is on the runtime stack by the time the operator
+        # runs.
+        def matrix_operand(op)
+          op.matrix.is_a?(Model::Computed) ? @stack.pop : op.matrix
+        end
+
+        # Arrays on the runtime stack hold either plain numbers or parsed
+        # Number literals. Anything other than six numbers is not a matrix.
         def matrix_from_operand(operand)
           case operand
           when Matrix then operand
-          when Model::Literals::ArrayLiteral
-            matrix_from_operand(operand.elements.map { |element| numeric_value(element) })
+          when Model::Literals::ArrayLiteral then matrix_from_operand(operand.elements)
           when Array
-            return nil unless operand.length == 6
+            numbers = operand.map { |element| matrix_number(element) }
+            return nil unless numbers.length == 6 && numbers.all?
 
-            Matrix.new(a: operand[0], b: operand[1], c: operand[2],
-                       d: operand[3], e: operand[4], f: operand[5])
+            Matrix.new(a: numbers[0], b: numbers[1], c: numbers[2],
+                       d: numbers[3], e: numbers[4], f: numbers[5])
           end
+        end
+
+        def matrix_number(element)
+          numeric_value(element) if element.is_a?(Numeric) || element.is_a?(Model::Literals::Number)
         end
       end
     end
