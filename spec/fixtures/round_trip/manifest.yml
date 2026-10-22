@@ -1,0 +1,69 @@
+fixtures:
+  - file: shapes/rect.svg
+    family: shapes
+  - file: shapes/polygon.svg
+    family: shapes
+  - file: shapes/polyline.svg
+    family: shapes
+  - file: shapes/path_lines_curves.svg
+    family: shapes
+  - file: line_stroke/line.svg
+    family: line_stroke
+    model:
+      known_gap: setlinecap and setlinejoin operands are not spliced into the model output.
+  - file: arc/circle.svg
+    family: arc
+  - file: arc/ellipse.svg
+    family: arc
+  - file: arc/path_arc.svg
+    family: arc
+    model:
+      known_gap: setlinecap and setlinejoin operands are not spliced into the model output.
+  - file: paint_fill/gray.svg
+    family: paint_fill
+  - file: paint_fill/rgb.svg
+    family: paint_fill
+  - file: fill_stroke/fill_stroke.svg
+    family: fill_stroke
+    model:
+      known_gap: setlinecap and setlinejoin operands are not spliced into the model output.
+  - file: stroke_style/linecap.svg
+    family: stroke_style
+    model:
+      known_gap: setlinecap operands are not spliced into the model output.
+  - file: stroke_style/linejoin.svg
+    family: stroke_style
+    model:
+      known_gap: setlinejoin operands are not spliced into the model output.
+  - file: text/text.svg
+    family: text
+    model:
+      known_gap: findfont, scalefont, and show operands are not spliced into the model output.
+  - file: transform/translate.svg
+    family: transform
+    model:
+      known_gap: concat operands are emitted as bare numbers instead of an array.
+  - file: transform/rotate.svg
+    family: transform
+    model:
+      known_gap: concat operands are emitted as bare numbers instead of an array.
+  - file: transform/matrix.svg
+    family: transform
+    model:
+      known_gap: concat operands are emitted as bare numbers instead of an array.
+  - file: transform/nested_groups.svg
+    family: transform
+    model:
+      known_gap: concat operands are emitted as bare numbers instead of an array.
+  - file: gradient/linear.svg
+    family: gradient
+    model:
+      non_goal: url() paint is permanently flattened to a plain fill.
+    svg:
+      non_goal: url() paint is permanently flattened to a plain fill.
+  - file: gradient/radial.svg
+    family: gradient
+    model:
+      non_goal: url() paint is permanently flattened to a plain fill.
+    svg:
+      non_goal: url() paint is permanently flattened to a plain fill.

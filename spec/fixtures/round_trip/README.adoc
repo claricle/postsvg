@@ -1,0 +1,29 @@
+= Round-trip SVG corpus
+
+This directory contains focused inputs for the SVG -> PostScript model -> SVG
+fidelity contract. Each SVG has exactly one entry in `manifest.yml`; paths in
+the manifest are relative to this directory. `family` groups related features
+without changing the identity of an individual fixture.
+
+An entry may mark an expected mismatch on the `model` leg, the `svg` leg, or
+both. A `known_gap` is a bug that must have a follow-up fix card. A `non_goal`
+records intentional, permanent flattening that the round trip does not promise
+to preserve. The value of either marker is the reason for the exception.
+
+Both markers run as strict pending examples: the expected mismatch must remain
+visible, and an unexpected pass fails the suite so the marker can be removed.
+
+[source,yaml]
+----
+- file: transform/translate.svg
+  family: transform
+  model:
+    known_gap: concat operands are emitted as bare numbers instead of an array.
+
+- file: gradient/linear.svg
+  family: gradient
+  model:
+    non_goal: url() paint is permanently flattened to a plain fill.
+  svg:
+    non_goal: url() paint is permanently flattened to a plain fill.
+----
