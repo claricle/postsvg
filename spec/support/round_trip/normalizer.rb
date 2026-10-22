@@ -2,8 +2,11 @@
 
 module RoundTrip
   # Reduces PostScript programs to the operator values that matter to a
-  # round-trip comparison. Serializer operand literals and its final showpage
-  # are representation details, rather than additional program operations.
+  # round-trip comparison. Only operators are kept: every literal in the body
+  # (numbers, names, strings, arrays, procedures, dictionaries) is an operand,
+  # and the operator that consumes it carries its value through
+  # ATTRIBUTE_READERS, so comparing operators compares the literals too. The
+  # serializer's final showpage is a representation detail and is dropped.
   class Normalizer
     ATTRIBUTE_READERS = {
       Postscript::Model::Operators::Path::Moveto => %i[x y],

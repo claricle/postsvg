@@ -117,36 +117,22 @@ RSpec.describe RoundTrip::Normalizer do
       SVG
     end
 
-    let(:numeric_findfont_parser) do
-      lambda do |source|
-        program = Postscript::Source.parse(source)
-        body = program.body.map { |record| numeric_findfont(record) }
-        program.with(body: body)
-      end
-    end
-
-    def numeric_findfont(record)
-      return record unless record.is_a?(Postscript::Model::Operators::Font::Findfont)
-
-      Postscript::Model::Operators::Font::Findfont.new(
-        name: Postscript::Model::Literals::Number.new(7),
-      )
-    end
-
     it "finds no differences after round-tripping a rect and circle" do
       expect(described_class.call(shape_svg)).to be_empty
     end
 
-    it "reports operand differences for text operators" do
-      differences = described_class.call(text_svg, parser: numeric_findfont_parser)
-      findfont_difference = differences.find do |difference|
-        difference[:expected].first == "findfont"
-      end
-
-      expect(findfont_difference).to eq(
-        index: 1,
-        expected: ["findfont", { name: "Helvetica" }],
-        actual: ["findfont", { name: 7 }],
+    # Real text loss on the default parser today: the serializer does not
+    # splice the font name, size, or string, so they parse back as computed.
+    it "reports the text operands lost on the round trip" do
+      expect(described_class.call(text_svg)).to eq(
+        [
+          { index: 1, expected: ["findfont", { name: "Helvetica" }],
+            actual: ["findfont", { name: :computed }] },
+          { index: 2, expected: ["scalefont", { font: :computed, size: 12.0 }],
+            actual: ["scalefont", { font: :computed, size: 0.0 }] },
+          { index: 5, expected: ["show", { text: "Hello" }],
+            actual: ["show", { text: :computed }] },
+        ],
       )
     end
   end
