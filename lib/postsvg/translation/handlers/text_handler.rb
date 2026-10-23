@@ -8,7 +8,9 @@ module Postsvg
       #   /<font-family> findfont
       #   <font-size> scalefont
       #   setfont
-      #   <x> <y> moveto
+      #   <x> <y> translate
+      #   1 -1 scale
+      #   0 0 moveto
       #   (text) show
       #
       # Real font metrics (kerning, ligatures, glyph substitution) are
@@ -32,8 +34,14 @@ module Postsvg
           context.emitter.emit(Model::Operators::Font::Setfont.new(
                                  font: Model::Computed.new(operator_keyword: "scalefont"),
                                ))
-          context.emitter.emit(Model::Operators::Path::Moveto.new(x: element.x,
-                                                                  y: element.y))
+          # The document transform converts SVG's downward y axis to PS.
+          # Restore upward font space around the baseline without undoing
+          # the authored text/group transforms or moving the anchor.
+          context.emitter.emit(Model::Operators::Transformations::Translate.new(
+                                 tx: element.x, ty: element.y,
+                               ))
+          context.emitter.emit(Model::Operators::Transformations::Scale.new(sx: 1, sy: -1))
+          context.emitter.emit(Model::Operators::Path::Moveto.new(x: 0, y: 0))
           context.emitter.emit(Model::Operators::Font::Show.new(text: element.content.to_s))
 
           context.emitter.emit(Model::Operators::GraphicsState::Grestore.new)
