@@ -29,7 +29,13 @@ module Postsvg
         Model::Operators::Transformations::Translate => NUMBER_OPERANDS,
         Model::Operators::Transformations::Scale => NUMBER_OPERANDS,
         Model::Operators::Font::Findfont => lambda do |record|
-          [Model::Literals::Name.new(record.name, literal: true)]
+          # findfont accepts strings as well as names; whitespace must not
+          # split a family name into separate PostScript tokens.
+          if record.name.match?(/\s/)
+            [Model::Literals::StringLiteral.new(record.name)]
+          else
+            [Model::Literals::Name.new(record.name, literal: true)]
+          end
         end,
         Model::Operators::Font::Scalefont => lambda do |record|
           [Model::Literals::Number.new(record.size)]
