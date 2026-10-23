@@ -72,8 +72,9 @@ module Postsvg
 
       def compute_viewport_bbox
         if document.viewbox
-          llx, lly, urx, ury = document.viewbox
-          BoundingBox.new(min_x: llx, min_y: lly, max_x: urx, max_y: ury)
+          x, y, width, height = document.viewbox
+          BoundingBox.new(min_x: x, min_y: y, max_x: x + width,
+                          max_y: y + height)
         elsif document.width && document.height
           BoundingBox.new(min_x: 0, min_y: 0, max_x: document.width,
                           max_y: document.height)
