@@ -3,18 +3,20 @@
 require "spec_helper"
 
 RSpec.describe Postsvg::Visitors::PsVisitor do # rubocop:disable RSpec/SpecFilePathFormat
+  # SvgSummary reports document coordinates, including the default A4
+  # page flip: PS y=15 becomes SVG y=842-15, with reversed arc sweep.
   {
     "translation left active at paint" => [
       "0 0 moveto 10 10 translate 0 0 5 0 90 arc stroke",
-      ["A", 5.0, 5.0, 0.0, 0, 1, 10.0, 15.0],
+      ["A", 5.0, 5.0, 0.0, 0, 0, 10.0, 827.0],
     ],
     "scale left active at paint" => [
       "0 0 moveto 2 3 scale 0 0 5 0 90 arc stroke",
-      ["A", 15.0, 10.0, 90.0, 0, 1, 0.0, 15.0],
+      ["A", 15.0, 10.0, 90.0, 0, 0, 0.0, 827.0],
     ],
     "another CTM change after construction" => [
       "0 0 moveto 10 10 translate 0 0 5 0 90 arc 20 0 translate stroke",
-      ["A", 5.0, 5.0, 0.0, 0, 1, 10.0, 15.0],
+      ["A", 5.0, 5.0, 0.0, 0, 0, 10.0, 827.0],
     ],
   }.each do |description, (source, expected_arc)|
     it "preserves arc geometry with #{description}" do

@@ -133,6 +133,19 @@ RSpec.describe RoundTrip::Normalizer do
       expect(described_class.call(text_svg)).to be_empty
     end
 
+    it "reports a changed document y-flip rather than dropping transform operands" do
+      parser = lambda do |source|
+        Postscript::Source.parse(source.sub("1\n-1\nscale", "1\n1\nscale"))
+      end
+
+      expect(described_class.call(text_svg, parser: parser)).to eq(
+        [
+          { index: 1, expected: ["scale", { sx: 1, sy: -1 }],
+            actual: ["scale", { sx: 1, sy: 1 }] },
+        ],
+      )
+    end
+
     it "reports text operands changed by the parser" do
       parser = lambda do |source|
         Postscript::Source.parse(source.sub("(Hello)", "(Changed)"))
@@ -140,7 +153,7 @@ RSpec.describe RoundTrip::Normalizer do
 
       expect(described_class.call(text_svg, parser: parser)).to eq(
         [
-          { index: 5, expected: ["show", { text: "Hello" }],
+          { index: 9, expected: ["show", { text: "Hello" }],
             actual: ["show", { text: "Changed" }] },
         ],
       )
