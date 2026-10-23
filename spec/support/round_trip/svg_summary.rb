@@ -18,41 +18,18 @@ module RoundTrip
     end
 
     def call
-      visit(@document.root_element, IDENTITY, root: true)
+      visit(@document.root_element, IDENTITY)
       coalesce_paint(@items)
     end
 
     private
 
-    def visit(element, parent_matrix, root: false)
+    def visit(element, parent_matrix)
       matrix = multiply(parent_matrix, matrix_for(element))
-      if root
-        element.children.each { |child| visit_root_child(child, matrix) }
-      elsif container?(element)
+      if container?(element)
         element.children.each { |child| visit(child, matrix) }
       else
         append_item(element, matrix)
-      end
-    end
-
-    # Renderer wraps every page in this coordinate-system conversion. It is
-    # not an authored SVG transform and must not become part of the comparison.
-    def visit_root_child(child, matrix)
-      child_matrix = matrix_for(child)
-      effective = renderer_y_flip?(child_matrix) ? IDENTITY : child_matrix
-      combined = multiply(matrix, effective)
-
-      if container?(child)
-        child.children.each { |descendant| visit(descendant, combined) }
-      else
-        append_item(child, combined)
-      end
-    end
-
-    def renderer_y_flip?(matrix)
-      height = @document.height || @document.viewbox&.last
-      height && matrix.zip([1.0, 0.0, 0.0, -1.0, 0.0, height]).all? do |left, right|
-        (left - right).abs < 0.0001
       end
     end
 
