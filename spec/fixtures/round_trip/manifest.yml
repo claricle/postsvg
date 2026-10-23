@@ -1,6 +1,10 @@
 # Markers record mismatches measured on main with PR #19 (gsave/grestore)
 # merged. Each known_gap names the plan task that fixes it.
 fixtures:
+  - file: path_commands/horizontal_vertical.svg
+    family: path_commands
+  - file: path_commands/quadratic.svg
+    family: path_commands
   - file: shapes/rect.svg
     family: shapes
   - file: shapes/polygon.svg
