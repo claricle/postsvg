@@ -86,6 +86,17 @@ module Postsvg
         registry.translate(element, context)
       end
 
+      # SVG's y axis points down; PostScript's points up. Convert once at
+      # the document boundary, before any authored element transforms.
+      def coordinate_conversion(bbox)
+        emitter = RecordEmitter.new
+        emitter.emit(Model::Operators::Transformations::Translate.new(
+                       tx: 0, ty: bbox[3] - bbox[1],
+                     ))
+        emitter.emit(Model::Operators::Transformations::Scale.new(sx: 1, sy: -1))
+        emitter.records
+      end
+
       def build_program(emitter, context)
         bbox = context.bounding_box
         header_bbox =
@@ -99,7 +110,8 @@ module Postsvg
           epsf: eps,
           title: "Translated by Postsvg #{::Postsvg::VERSION}",
         )
-        Model::Program.new(header: header, body: emitter.records)
+        Model::Program.new(header: header,
+                           body: coordinate_conversion(header_bbox) + emitter.records)
       end
     end
   end
