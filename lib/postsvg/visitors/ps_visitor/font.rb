@@ -32,6 +32,7 @@ module Postsvg
 
         def visit_scalefont(op, _ctx)
           size = op.size.to_i
+          consume_numeric_operands(op.size)
           font = @stack.pop
           base = if font.is_a?(FontRef)
                    font
