@@ -7,8 +7,6 @@ fixtures:
     family: shapes
   - file: shapes/polyline.svg
     family: shapes
-    svg:
-      known_gap: The fill is lost; to_ps emits only a black stroke of the open path (task 53-10).
   - file: shapes/path_lines_curves.svg
     family: shapes
   - file: line_stroke/line.svg
