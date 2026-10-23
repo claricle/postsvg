@@ -9,8 +9,8 @@ module Postsvg
       #
       # - M/m moveto (relative repeats as l)
       # - L/l lineto
-      # - H/h vertical line
-      # - V/v horizontal line
+      # - H/h horizontal line
+      # - V/v vertical line
       # - C/c cubic bezier
       # - S/s smooth cubic (reflects previous control point)
       # - Q/q quadratic bezier (converted to cubic)
@@ -50,7 +50,7 @@ module Postsvg
           when "H", "h"
             handle_hv(cmd, state, context, horizontal: cmd.opcode.upcase == "H")
           when "V", "v"
-            handle_hv(cmd, state, context, horizontal: cmd.opcode.upcase == "V")
+            handle_hv(cmd, state, context, horizontal: false)
           when "C", "c"
             handle_cubic(cmd, state, smooth, context)
           when "S", "s"
@@ -177,6 +177,10 @@ module Postsvg
 
         def self.handle_smooth_quadratic(cmd, state, smooth, context)
           x3, y3 = cmd.args
+          if cmd.opcode == "t"
+            x3 += state.current_x
+            y3 += state.current_y
+          end
           qx, qy =
             if smooth.smoothable
               [reflect_x(smooth.control_x, state),
@@ -190,14 +194,7 @@ module Postsvg
           c1y = p0y + ((2.0 / 3.0) * (qy - p0y))
           c2x = x3 + ((2.0 / 3.0) * (qx - x3))
           c2y = y3 + ((2.0 / 3.0) * (qy - y3))
-          if cmd.opcode == "T"
-            state.curve_to(x3, y3)
-          else
-            state.curve_to_rel(x3 - p0x, y3 - p0y) # treat as rel target
-            # Re-anchor to absolute target for emission below.
-            state.current_x = p0x + x3
-            state.current_y = p0y + y3
-          end
+          state.curve_to(x3, y3)
           context.emitter.emit(Model::Operators::Path::Curveto.new(
                                  x1: c1x, y1: c1y, x2: c2x, y2: c2y, x3: state.current_x, y3: state.current_y,
                                ))
