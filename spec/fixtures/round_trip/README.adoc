@@ -49,3 +49,26 @@ one entry and parses. The contract and golden specs carry the `round_trip` tag
   svg:
     non_goal: url() paint is permanently flattened to a plain fill (black today).
 ----
+
+== Native parser parity
+
+Each manifest fixture also runs through `RoundTrip::Harness` with a callable
+that explicitly selects `Postscript::Source.parse(source, engine: :native)`.
+Its normalized program must match the Ruby parser's normalized program and
+the emitted model. Model markers remain strict pending; SVG-only markers do
+not weaken the model comparison.
+
+Run only native examples with
+`bundle exec rspec spec/postsvg/round_trip_contract_spec.rb --tag native`.
+They also carry `round_trip` and run in the normal CI suite. Each example
+skips with an explicit reason if native support is unavailable. A skip is
+not evidence of native parity.
+
+The installed postscript must include `Source::NativeEngine` (the released
+0.2.1 gem predates that API). Upstream's optional engine also needs parsanol
+>= 1.3.96, Ruby >= 3.2, its platform native extension, and the postscript
+gem's `grammars/postscript.json` artifact. Add parsanol to the bundle when
+running native checks; it is not a runtime dependency of postsvg. The
+upstream availability probe reports missing/old parsanol or a missing native
+extension. Other errors, including a broken grammar artifact or a corpus
+parse failure, fail the spec rather than being converted into skips.

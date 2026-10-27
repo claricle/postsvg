@@ -9,6 +9,11 @@ RSpec.describe "model-level round-trip contract" do # rubocop:disable RSpec/Desc
   manifest_root = File.expand_path("../fixtures/round_trip", __dir__)
   entries = YAML.safe_load_file(File.join(manifest_root, "manifest.yml")).fetch("fixtures")
 
+  before(:example, :native) do
+    reason = RoundTrip::NativeParser.unavailability_reason
+    skip("native round-trip unavailable: #{reason}") if reason
+  end
+
   def pending_marker(marker)
     expect(marker.keys - %w[known_gap non_goal]).to be_empty
     expect(marker.size).to be <= 1
@@ -39,6 +44,21 @@ RSpec.describe "model-level round-trip contract" do # rubocop:disable RSpec/Desc
       diff = RoundTrip::Harness.call(svg)
 
       expect(diff).to be_empty, -> { "round-trip diff:\n#{diff.inspect}" }
+    end
+
+    it "native parser parity for #{entry.fetch('file')}", :native, :round_trip do
+      pending_marker(entry.fetch("model", {}))
+
+      svg = File.read(File.join(root, entry.fetch("file")))
+      native_parser = lambda do |source|
+        native = RoundTrip::NativeParser.call(source)
+        ruby = Postscript::Source.parse(source)
+        expect(RoundTrip::Normalizer.call(native)).to eq(RoundTrip::Normalizer.call(ruby))
+        native
+      end
+      diff = RoundTrip::Harness.call(svg, parser: native_parser)
+
+      expect(diff).to be_empty, -> { "native round-trip diff:\n#{diff.inspect}" }
     end
 
     next unless entry.fetch("family") == "gradient"
