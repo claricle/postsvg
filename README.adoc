@@ -289,6 +289,15 @@ or indexed expected/actual normalized records on a mismatch. This lets a
 candidate parser reuse the same model contract without changing the public
 conversion API.
 
+The model contract also runs every manifest fixture with
+`Postscript::Source.parse(source, engine: :native)`, comparing normalized
+programs against both Ruby parsing and the emitted model. Run it with
+`bundle exec rspec spec/postsvg/round_trip_contract_spec.rb --tag native`.
+When the installed postscript lacks the native API or its optional parsanol
+native engine is unavailable, examples skip with an explicit reason. These
+skips do not establish native parity; see
+`spec/fixtures/round_trip/README.adoc` for prerequisites and marker behavior.
+
 == Command-line interface
 
 [[cli]]
