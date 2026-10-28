@@ -11,7 +11,12 @@ RSpec.describe "model-level round-trip contract" do # rubocop:disable RSpec/Desc
 
   before(:example, :native) do
     reason = RoundTrip::NativeParser.unavailability_reason
-    skip("native round-trip unavailable: #{reason}") if reason
+    next unless reason
+
+    message = "native round-trip unavailable: #{reason}"
+    raise message if ENV["POSTSVG_REQUIRE_NATIVE"] == "1"
+
+    skip(message)
   end
 
   def pending_marker(marker)

@@ -1,0 +1,25 @@
+name: native parity
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ master, main ]
+    tags: [ v* ]
+  pull_request:
+
+jobs:
+  native-parity:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/native-parity/Gemfile
+      POSTSVG_REQUIRE_NATIVE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Run native round-trip parity
+        run: bundle exec rspec spec/postsvg/round_trip_contract_spec.rb --tag native

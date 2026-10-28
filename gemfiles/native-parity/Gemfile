@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+eval_gemfile "../../Gemfile"
+
+# Drop this CI-only overlay once postscript releases NativeEngine and
+# parsanol/parsanol-ruby#354 ships a fix for previously baked grammars.
+gem "parsanol", "1.3.109"
+gem "postscript", git: "https://github.com/claricle/postscript.git", branch: "main"
