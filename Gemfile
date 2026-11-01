@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "canon"
-gem "leptris", ">= 1.9.365.1"
+gem "leptris", ">= 1.9.399.0"
 gem "rake"
 gem "rspec"
 gem "rubocop"
