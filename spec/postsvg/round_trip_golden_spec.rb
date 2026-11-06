@@ -5,6 +5,9 @@ require "yaml"
 
 RSpec.describe "round-trip emitted PostScript goldens" do # rubocop:disable RSpec/DescribeClass
   let(:root) { File.expand_path("../fixtures/round_trip", __dir__) }
+  # The header names the emitting version, so a version bump would
+  # otherwise invalidate every golden. Compare it separately.
+  let(:version_line) { /^(%%Title: Translated by Postsvg ).*$/ }
 
   manifest_root = File.expand_path("../fixtures/round_trip", __dir__)
   entries = YAML.safe_load_file(File.join(manifest_root, "manifest.yml")).fetch("fixtures")
@@ -17,7 +20,11 @@ RSpec.describe "round-trip emitted PostScript goldens" do # rubocop:disable RSpe
       expected = File.binread(golden_path)
       actual = Postsvg.to_ps(File.read(svg_path)).b
 
-      expect(actual).to eq(expected)
+      expect(actual.sub(version_line, '\\1X'))
+        .to eq(expected.sub(version_line, '\\1X'))
+      expect(actual[version_line]).to eq(
+        "%%Title: Translated by Postsvg #{Postsvg::VERSION}",
+      )
     end
   end
 end
